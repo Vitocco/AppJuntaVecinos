@@ -116,23 +116,21 @@ fun InicioScreen() {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .verticalScroll(rememberScrollState())   // por si no cabe todo
+                .verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp, vertical = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)  // 20dp entre cada bloque
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            // ── 1. Saludo ──────────────────────────────
             Column {
                 Text("Hola,", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Text("Camila Rojas", fontSize = 24.sp, fontWeight = FontWeight.Bold)
             }
 
-            // ── 2. Aviso verde "Reserva confirmada" ────
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))       // 1° redondear
-                    .background(Color(0xFFD7EBDF))         // 2° pintar (si pintas antes de clip, no se redondea)
-                    .padding(16.dp),                       // 3° espacio interno
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color(0xFFD7EBDF))
+                    .padding(16.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Icon(Icons.Filled.CheckCircle, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
@@ -142,7 +140,6 @@ fun InicioScreen() {
                 }
             }
 
-            // ── 3. Tarjeta verde oscura del saldo ──────
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -154,7 +151,6 @@ fun InicioScreen() {
                 Text("Saldo de la junta · Octubre", fontSize = 14.sp, color = Color(0xFFCFE5D8))
                 Text("$ 412.300", fontSize = 34.sp, fontWeight = FontWeight.Bold, color = Color.White)
                 Row(modifier = Modifier.fillMaxWidth()) {
-                    // weight(1f) = cada columna toma la mitad del ancho
                     Column(modifier = Modifier.weight(1f)) {
                         Text("Ingresos", fontSize = 12.sp, color = Color(0xFFCFE5D8))
                         Text("+ $ 105.000", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
@@ -166,9 +162,8 @@ fun InicioScreen() {
                 }
             }
 
-            // ── 4. Botón "Solicitar arriendo" ──────────
             OutlinedButton(
-                onClick = { },   // después: navegar al formulario
+                onClick = { },
                 modifier = Modifier.fillMaxWidth().height(56.dp)
             ) {
                 Icon(Icons.Filled.Add, contentDescription = null)
@@ -176,7 +171,6 @@ fun InicioScreen() {
                 Text("Solicitar arriendo de la sede", fontSize = 16.sp)
             }
 
-            // ── 5. Mis reservas ────────────────────────
             Text("Mis reservas", fontSize = 17.sp, fontWeight = FontWeight.Bold)
             TarjetaReserva("Cumpleaños familiar", "Sáb 18 oct · 15:00–20:00", "Confirmada")
             TarjetaReserva("Taller de tejido", "Mié 5 nov · 18:00–20:00", "Pendiente")
@@ -184,10 +178,8 @@ fun InicioScreen() {
     }
 }
 
-// Tarjeta blanca de una reserva. La hacemos función porque se repite 2 veces.
 @Composable
 fun TarjetaReserva(titulo: String, fecha: String, estado: String) {
-    // Colores de la etiqueta según el estado
     val fondo = if (estado == "Confirmada") Color(0xFFD7EBDF) else Color(0xFFFCE8D5)
     val texto = if (estado == "Confirmada") Color(0xFF1F5C4A) else Color(0xFF8A3A0A)
 
@@ -199,7 +191,7 @@ fun TarjetaReserva(titulo: String, fecha: String, estado: String) {
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(modifier = Modifier.weight(1f)) {   // ocupa todo el espacio que sobra → empuja la etiqueta a la derecha
+        Column(modifier = Modifier.weight(1f)) {
             Text(titulo, fontWeight = FontWeight.Bold, fontSize = 15.sp)
             Text(fecha, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
