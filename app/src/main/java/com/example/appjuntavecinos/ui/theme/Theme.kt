@@ -19,24 +19,23 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = VerdeJunta,              // color de Button, íconos activos, borde del campo enfocado
-    onPrimary = Color.White,           // texto/ícono ENCIMA de primary (ej. "Ingresar" dentro del botón)
-    primaryContainer = VerdeClaro,     // fondos suaves de elementos seleccionados
-    onPrimaryContainer = VerdeJunta,   // texto encima de VerdeClaro
-    secondaryContainer = VerdeClaro,   // el SegmentedButton seleccionado usa ESTE color
+    primary = VerdeJunta,
+    onPrimary = Color.White,
+    primaryContainer = VerdeClaro,
+    onPrimaryContainer = VerdeJunta,
+    secondaryContainer = VerdeClaro,
     onSecondaryContainer = VerdeJunta,
-    background = FondoApp,             // ← este es el que usa tu Surface
-    surface = FondoApp,                // fondo de Cards, barras, etc.
-    onBackground = TextoPrincipal,     // texto sobre el fondo
+    background = FondoApp,
+    surface = FondoApp,
+    onBackground = TextoPrincipal,
     onSurface = TextoPrincipal,
-    onSurfaceVariant = TextoSecundario,// el gris de los subtítulos
+    onSurfaceVariant = TextoSecundario,
     error = RojoError
 )
 
 @Composable
 fun AppJuntaVecinosTheme(
     darkTheme: Boolean = false,
-    // Dynamic color is available on Android 12+
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {

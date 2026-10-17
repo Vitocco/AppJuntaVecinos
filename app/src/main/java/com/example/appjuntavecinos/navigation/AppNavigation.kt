@@ -1,42 +1,52 @@
 package com.example.appjuntavecinos.navigation
 
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.appjuntavecinos.ui.screens.HistorialFinancieroScreen
 import com.example.appjuntavecinos.ui.screens.InicioScreen
 import com.example.appjuntavecinos.ui.screens.LoginScreen
+import com.example.appjuntavecinos.ui.screens.RegisterScreen
+import com.example.appjuntavecinos.ui.screens.SolicitarReservaScreen
 
 @Composable
 fun AppNavigation() {
-    // El "conductor": recuerda en qué pantalla estás y el historial (para el botón atrás).
-    // "remember" → se crea UNA vez y no se pierde al redibujar.
     val navController = rememberNavController()
+    val pestanas = listOf(Rutas.INICIO, Rutas.RESERVA, Rutas.MIS_PAGOS, Rutas.HISTORIAL)
 
-    // El "escenario": muestra la pantalla de la ruta actual.
-    // startDestination = la primera pantalla al abrir la app.
-    NavHost(
-        navController = navController,
-        startDestination = Rutas.LOGIN
-    ) {
-        // Cada composable(ruta) { ... } = "cuando la ruta sea X, muestra esta pantalla".
+    NavHost(navController = navController, startDestination = Rutas.LOGIN) {
 
         composable(Rutas.LOGIN) {
             LoginScreen(
-                // Aquí se CONECTA el aviso del login con el viaje.
-                // El LoginScreen no sabe adónde va; el mapa sí.
-                onLoginClick = {
-                    navController.navigate(Rutas.INICIO) {
-                        // Saca el Login del historial: al apretar "atrás" en Inicio
-                        // la app se cierra en vez de volver al login (ya iniciaste sesión).
-                        popUpTo(Rutas.LOGIN) { inclusive = true }
-                    }
-                }
+                onLoginClick = { navController.navigate(Rutas.INICIO) },
+                onRegisterClick = { navController.navigate(Rutas.REGISTER) }
+            )
+        }
+
+        composable(Rutas.REGISTER) {
+            RegisterScreen(
+                onVolver = { navController.popBackStack() },
+                onRegistroExitoso = { navController.popBackStack() }
             )
         }
 
         composable(Rutas.INICIO) {
-            InicioScreen()
+            InicioScreen(onSeleccionar = { navController.navigate(pestanas[it]) })
+        }
+
+        composable(Rutas.RESERVA) {
+            SolicitarReservaScreen(
+                onVolver = { navController.popBackStack() },
+                onSolicitudEnviada = { navController.popBackStack() }
+            )
+        }
+
+        composable(Rutas.MIS_PAGOS) { Text("Mis pagos: próximamente") }
+
+        composable(Rutas.HISTORIAL) {
+            HistorialFinancieroScreen()
         }
     }
 }
