@@ -33,6 +33,8 @@ class FinanzasRepository(private val dao: FinanzasDao) {
 
     suspend fun informes(): List<Informe> = dao.informes()
 
+    suspend fun guardarMovimiento(movimiento: Movimiento) = dao.insertarMovimiento(movimiento)
+
     // Datos ficticios (el caso prohíbe usar información real). Solo se insertan si la tabla está vacía.
     suspend fun sembrarSiVacio() {
         if (dao.contarMovimientos() > 0) return

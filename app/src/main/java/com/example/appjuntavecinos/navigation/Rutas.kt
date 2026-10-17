@@ -11,4 +11,6 @@ object Rutas {
     const val RESERVA = "reserva" //pantalla 3
 
     const val HISTORIAL = "historial" //pantalla 5
+
+    const val MOVIMIENTO = "movimiento" //pantalla 7
 }

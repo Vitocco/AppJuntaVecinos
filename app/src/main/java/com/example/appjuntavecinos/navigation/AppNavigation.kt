@@ -7,6 +7,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.appjuntavecinos.ui.screens.InicioScreen
 import com.example.appjuntavecinos.ui.screens.LoginScreen
 import com.example.appjuntavecinos.ui.screens.HistorialFinancieroScreen
+import com.example.appjuntavecinos.ui.screens.RegistrarMovimientoScreen
 import com.example.appjuntavecinos.ui.screens.SolicitarReservaScreen
 
 @Composable
@@ -51,6 +52,13 @@ fun AppNavigation() {
 
         composable(Rutas.HISTORIAL) {
             HistorialFinancieroScreen()
+        }
+
+        composable(Rutas.MOVIMIENTO) {
+            RegistrarMovimientoScreen(
+                onVolver = { navController.popBackStack() },
+                onMovimientoGuardado = { navController.popBackStack() }
+            )
         }
     }
 }
