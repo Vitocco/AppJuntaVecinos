@@ -6,6 +6,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.appjuntavecinos.ui.screens.InicioScreen
 import com.example.appjuntavecinos.ui.screens.LoginScreen
+import com.example.appjuntavecinos.ui.screens.HistorialFinancieroScreen
+import com.example.appjuntavecinos.ui.screens.SolicitarReservaScreen
 
 @Composable
 fun AppNavigation() {
@@ -18,6 +20,7 @@ fun AppNavigation() {
     NavHost(
         navController = navController,
         startDestination = Rutas.LOGIN
+
     ) {
         // Cada composable(ruta) { ... } = "cuando la ruta sea X, muestra esta pantalla".
 
@@ -37,6 +40,17 @@ fun AppNavigation() {
 
         composable(Rutas.INICIO) {
             InicioScreen()
+        }
+
+        composable(Rutas.RESERVA) {
+            SolicitarReservaScreen(
+                onVolver = { navController.popBackStack() },
+                onSolicitudEnviada = { navController.popBackStack() }
+            )
+        }
+
+        composable(Rutas.HISTORIAL) {
+            HistorialFinancieroScreen()
         }
     }
 }

@@ -7,4 +7,8 @@ object Rutas {
     const val LOGIN = "login"
     const val INICIO = "inicio"
     // aquí irás agregando: RESERVA, MIS_PAGOS, HISTORIAL, GESTION, MOVIMIENTO...
+
+    const val RESERVA = "reserva" //pantalla 3
+
+    const val HISTORIAL = "historial" //pantalla 5
 }
