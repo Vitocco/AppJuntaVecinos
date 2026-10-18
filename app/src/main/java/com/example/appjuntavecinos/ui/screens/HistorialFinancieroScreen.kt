@@ -53,6 +53,7 @@ import com.example.appjuntavecinos.viewmodel.HistorialViewModel
 import com.example.appjuntavecinos.viewmodel.MesSeleccionado
 import kotlinx.coroutines.launch
 
+// Colores propios de esta pantalla (los del mockup que no están en el tema)
 private val ColorGasto = Color(0xFF8A3B12)
 private val GrisSuave = Color(0xFFECEEE9)
 
@@ -97,6 +98,7 @@ fun HistorialFinancieroScreen(
                 Text("Informes y rendiciones", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 estado.informes.forEach { informe ->
                     FilaInforme(informe) {
+                        // Por ahora simulado; después se reemplaza por un recurso nativo
                         scope.launch { snackbarHostState.showSnackbar("Descarga simulada: ${informe.titulo}") }
                     }
                 }
@@ -188,6 +190,7 @@ private fun TarjetaGastos(gastos: List<GastoCategoria>) {
 @Composable
 private fun BarraGasto(categoria: String, total: Int, proporcion: Float) {
     val c = MaterialTheme.colorScheme
+    // La barra se anima cuando cambia el mes (IE 2.2.2)
     val animada by animateFloatAsState(targetValue = proporcion, label = "barraGasto")
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {

@@ -11,7 +11,7 @@ import com.example.appjuntavecinos.model.Usuario
 
 @Database(
     entities = [Reserva::class, Movimiento::class, Informe::class, Usuario::class],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

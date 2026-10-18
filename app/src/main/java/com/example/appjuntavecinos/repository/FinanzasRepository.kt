@@ -17,7 +17,7 @@ data class ResumenMes(
 class FinanzasRepository(private val dao: FinanzasDao) {
 
     companion object {
-        const val SALDO_APERTURA = 331_300
+        const val SALDO_APERTURA = 331_300   // monto ficticio con el que parte la caja
     }
 
     suspend fun resumen(anio: Int, mes: Int): ResumenMes {
@@ -26,22 +26,27 @@ class FinanzasRepository(private val dao: FinanzasDao) {
         return ResumenMes(
             ingresos = dao.totalDelMes("INGRESO", desde, hasta),
             gastos = dao.totalDelMes("GASTO", desde, hasta),
-            saldo = SALDO_APERTURA + dao.netoHasta(hasta),
+            saldo = SALDO_APERTURA + dao.netoHasta(hasta),   // acumulado hasta fin de ese mes
             gastosPorCategoria = dao.gastosPorCategoria(desde, hasta)
         )
     }
 
     suspend fun informes(): List<Informe> = dao.informes()
 
+    suspend fun guardarMovimiento(movimiento: Movimiento) = dao.insertarMovimiento(movimiento)
+
+    // Datos ficticios (el caso prohíbe usar información real). Solo se insertan si la tabla está vacía.
     suspend fun sembrarSiVacio() {
         if (dao.contarMovimientos() > 0) return
 
         val movimientos = listOf(
+            // Septiembre 2026
             Movimiento(fecha = Fechas.fecha(2026, 9, 6),  tipo = "INGRESO", categoria = "Arriendo", monto = 35_000),
             Movimiento(fecha = Fechas.fecha(2026, 9, 20), tipo = "INGRESO", categoria = "Arriendo", monto = 35_000),
             Movimiento(fecha = Fechas.fecha(2026, 9, 10), tipo = "GASTO", categoria = "Luz",  monto = 19_800),
             Movimiento(fecha = Fechas.fecha(2026, 9, 12), tipo = "GASTO", categoria = "Gas",  monto = 14_000),
             Movimiento(fecha = Fechas.fecha(2026, 9, 14), tipo = "GASTO", categoria = "Agua", monto = 11_500),
+            // Octubre 2026
             Movimiento(fecha = Fechas.fecha(2026, 10, 4),  tipo = "INGRESO", categoria = "Arriendo", monto = 35_000),
             Movimiento(fecha = Fechas.fecha(2026, 10, 11), tipo = "INGRESO", categoria = "Arriendo", monto = 35_000),
             Movimiento(fecha = Fechas.fecha(2026, 10, 18), tipo = "INGRESO", categoria = "Arriendo", monto = 35_000),

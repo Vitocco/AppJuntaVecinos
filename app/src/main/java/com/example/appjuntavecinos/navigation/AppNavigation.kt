@@ -9,6 +9,7 @@ import com.example.appjuntavecinos.ui.screens.HistorialFinancieroScreen
 import com.example.appjuntavecinos.ui.screens.InicioScreen
 import com.example.appjuntavecinos.ui.screens.LoginScreen
 import com.example.appjuntavecinos.ui.screens.RegisterScreen
+import com.example.appjuntavecinos.ui.screens.RegistrarMovimientoScreen
 import com.example.appjuntavecinos.ui.screens.SolicitarReservaScreen
 
 @Composable
@@ -16,7 +17,14 @@ fun AppNavigation() {
     val navController = rememberNavController()
     val pestanas = listOf(Rutas.INICIO, Rutas.RESERVA, Rutas.MIS_PAGOS, Rutas.HISTORIAL)
 
-    NavHost(navController = navController, startDestination = Rutas.LOGIN) {
+    // El "escenario": muestra la pantalla de la ruta actual.
+    // startDestination = la primera pantalla al abrir la app.
+    NavHost(
+        navController = navController,
+        startDestination = Rutas.LOGIN
+
+    ) {
+        // Cada composable(ruta) { ... } = "cuando la ruta sea X, muestra esta pantalla".
 
         composable(Rutas.LOGIN) {
             LoginScreen(
@@ -47,6 +55,13 @@ fun AppNavigation() {
 
         composable(Rutas.HISTORIAL) {
             HistorialFinancieroScreen()
+        }
+
+        composable(Rutas.MOVIMIENTO) {
+            RegistrarMovimientoScreen(
+                onVolver = { navController.popBackStack() },
+                onMovimientoGuardado = { navController.popBackStack() }
+            )
         }
     }
 }

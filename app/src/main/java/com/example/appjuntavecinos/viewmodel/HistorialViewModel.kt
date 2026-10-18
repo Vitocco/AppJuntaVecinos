@@ -28,6 +28,7 @@ class HistorialViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val repositorio = FinanzasRepository(AppDatabase.getInstance(application).finanzasDao())
 
+    // Meses con datos; el último es el que se muestra al abrir
     val meses = listOf(MesSeleccionado(2026, 9), MesSeleccionado(2026, 10))
 
     private val _estado = MutableStateFlow(HistorialUiState(mes = meses.last()))

@@ -6,8 +6,10 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "movimientos")
 data class Movimiento(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val fecha: Long,
-    val tipo: String,
-    val categoria: String,
-    val monto: Int
+    val fecha: Long,        // inicio del día en milisegundos, igual que en Reserva
+    val tipo: String,       // "INGRESO" o "GASTO"
+    val categoria: String,  // "Arriendo", "Luz", "Gas", "Agua"...
+    val monto: Int ,         // en pesos
+    val detalle: String = "",
+    val comprobante: String? = null //foto del comprobante opcional
 )

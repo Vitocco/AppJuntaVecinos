@@ -10,6 +10,7 @@ interface ReservaDao {
     @Insert
     suspend fun insertar(reserva: Reserva)
 
+    // Chocan si cada una empieza antes de que la otra termine
     @Query("""
         SELECT * FROM reservas
         WHERE fecha = :fecha AND estado != 'RECHAZADA'

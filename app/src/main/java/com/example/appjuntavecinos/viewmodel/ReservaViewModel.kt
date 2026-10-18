@@ -12,15 +12,15 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-data class ReservaForm(
+data class ReservaForm(                 // = FormularioModel
     val fecha: Long? = null,
     val horaInicio: Int? = null,
     val horaTermino: Int? = null,
     val motivo: String = "",
-    val asistentes: String = ""
+    val asistentes: String = ""         // String porque viene de un TextField
 )
 
-data class ReservaErrores(
+data class ReservaErrores(              // = FormularioErrores
     val fecha: String? = null,
     val horaInicio: String? = null,
     val horaTermino: String? = null,
@@ -30,7 +30,7 @@ data class ReservaErrores(
 
 class ReservaViewModel(application: Application) : AndroidViewModel(application) {
 
-    companion object { const val MAX_ASISTENTES = 60 }
+    companion object { const val MAX_ASISTENTES = 60 }   // dato ficticio del mockup
 
     private val repositorio =
         ReservaRepository(AppDatabase.getInstance(application).reservaDao())
@@ -52,6 +52,7 @@ class ReservaViewModel(application: Application) : AndroidViewModel(application)
         if (v.all { it.isDigit() } && v.length <= 3) _form.value = _form.value.copy(asistentes = v)
     }
 
+    // Reglas que NO necesitan la base de datos (= validarFormulario del profesor)
     private fun validarCampos(): ReservaErrores {
         val d = _form.value
         val asistentes = d.asistentes.toIntOrNull()
@@ -90,6 +91,7 @@ class ReservaViewModel(application: Application) : AndroidViewModel(application)
 
         viewModelScope.launch {
             try {
+                // Regla que SÍ necesita la base de datos: no chocar con otra reserva
                 val choques = repositorio.buscarChoques(fecha, inicio, termino)
                 if (choques.isNotEmpty()) {
                     val primero = choques.first()

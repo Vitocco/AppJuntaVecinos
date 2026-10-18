@@ -59,6 +59,7 @@ fun SolicitarReservaScreen(
     val mensajeError by viewModel.mensajeError.collectAsState()
     val dias = remember { Fechas.proximosDias() }
 
+    // El ViewModel avisa "guardado"; la pantalla avisa a la navegación (no navega ella)
     LaunchedEffect(guardado) {
         if (guardado) { viewModel.consumirGuardado(); onSolicitudEnviada() }
     }
@@ -160,6 +161,7 @@ fun SolicitarReservaScreen(
 @Composable
 private fun DiaChip(dia: Long, seleccionado: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val c = MaterialTheme.colorScheme
+    // Animación (IE 2.2.2): el fondo cambia suave al elegir el día
     val fondo by animateColorAsState(if (seleccionado) c.primary else c.surface, label = "fondoDia")
     Surface(
         onClick = onClick,
