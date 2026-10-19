@@ -40,15 +40,9 @@ object Fechas {
     // Hoy a las 00:00
     fun hoy(): Long = proximosDias(1).first()
 
-    // El día siguiente (con Calendar, para respetar el cambio de hora)
-    fun diaSiguiente(m: Long): Long =
-        Calendar.getInstance().apply { timeInMillis = m; add(Calendar.DAY_OF_YEAR, 1) }.timeInMillis
-
     // "05/10/2026"
     fun fechaCompleta(m: Long): String = SimpleDateFormat("dd/MM/yyyy", local).format(Date(m))
 
-    // "octubre 2026"
-    fun mesAnio(m: Long): String = SimpleDateFormat("MMMM yyyy", local).format(Date(m))
 
     // El calendario (DatePicker) trabaja en UTC; estas dos convierten de/hacia tu "inicio del día" local
     fun aMillisUtc(m: Long): Long {

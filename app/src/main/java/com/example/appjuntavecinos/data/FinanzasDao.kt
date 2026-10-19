@@ -36,7 +36,4 @@ interface FinanzasDao {
     @Query("SELECT COUNT(*) FROM movimientos")
     suspend fun contarMovimientos(): Int
 
-    // Cuántos movimientos del período tienen foto de comprobante
-    @Query("SELECT COUNT(*) FROM movimientos WHERE comprobante IS NOT NULL AND fecha >= :desde AND fecha < :hasta")
-    suspend fun contarComprobantes(desde: Long, hasta: Long): Int
 }
