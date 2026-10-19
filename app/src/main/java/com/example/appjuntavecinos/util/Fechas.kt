@@ -37,11 +37,18 @@ object Fechas {
     // 105000 -> "$105.000"
     fun moneda(monto: Int): String = "\$" + "%,d".format(local, monto)
 
-    //inicio del dia
+    // Hoy a las 00:00
     fun hoy(): Long = proximosDias(1).first()
 
-    //fecha completa
+    // El día siguiente (con Calendar, para respetar el cambio de hora)
+    fun diaSiguiente(m: Long): Long =
+        Calendar.getInstance().apply { timeInMillis = m; add(Calendar.DAY_OF_YEAR, 1) }.timeInMillis
+
+    // "05/10/2026"
     fun fechaCompleta(m: Long): String = SimpleDateFormat("dd/MM/yyyy", local).format(Date(m))
+
+    // "octubre 2026"
+    fun mesAnio(m: Long): String = SimpleDateFormat("MMMM yyyy", local).format(Date(m))
 
     // El calendario (DatePicker) trabaja en UTC; estas dos convierten de/hacia tu "inicio del día" local
     fun aMillisUtc(m: Long): Long {
@@ -55,5 +62,4 @@ object Fechas {
         val u = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply { timeInMillis = utc }
         return fecha(u.get(Calendar.YEAR), u.get(Calendar.MONTH) + 1, u.get(Calendar.DAY_OF_MONTH))
     }
-
 }

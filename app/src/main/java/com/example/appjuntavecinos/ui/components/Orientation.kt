@@ -19,4 +19,5 @@ fun SegunOrientacion(
     horizontal: @Composable () -> Unit
 ) {
     if (esHorizontal()) horizontal() else vertical()
+
 }

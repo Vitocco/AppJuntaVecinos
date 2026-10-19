@@ -5,12 +5,17 @@ package com.example.appjuntavecinos.navigation
 // la app se cae y cuesta encontrar el error. Con constantes, Android Studio te avisa al tiro.
 object Rutas {
     const val LOGIN = "login"
+    const val REGISTER = "registro"
     const val INICIO = "inicio"
     // aquí irás agregando: RESERVA, MIS_PAGOS, HISTORIAL, GESTION, MOVIMIENTO...
 
     const val RESERVA = "reserva" //pantalla 3
 
+    const val MIS_PAGOS = "mis_pagos"
+
     const val HISTORIAL = "historial" //pantalla 5
 
     const val MOVIMIENTO = "movimiento" //pantalla 7
+
+
 }

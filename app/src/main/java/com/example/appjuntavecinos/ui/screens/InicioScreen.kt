@@ -1,6 +1,5 @@
 package com.example.appjuntavecinos.ui.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,103 +14,35 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Payments
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.appjuntavecinos.ui.components.BottomBar
 import com.example.appjuntavecinos.ui.theme.AppJuntaVecinosTheme
 
 @Composable
-fun InicioScreen() {
-    var selectedItem by remember { mutableStateOf(0) }
+fun InicioScreen(
+    onSeleccionar: (Int) -> Unit = {}
+) {
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        bottomBar = {
-            NavigationBar {
-                NavigationBarItem(
-                    selected = selectedItem == 0,
-                    onClick = {
-                        selectedItem = 0
-                    },
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Filled.Home,
-                            contentDescription = "Inicio"
-                        )
-                    },
-                    label = {
-                        Text("Inicio")
-                    }
-                )
-                NavigationBarItem(
-                    selected = selectedItem == 1,
-                    onClick = {
-                        selectedItem = 1
-                    },
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Filled.CalendarMonth,
-                            contentDescription = "Reservas"
-                        )
-                    },
-                    label = {
-                        Text("Reservas")
-                    }
-                )
-                NavigationBarItem(
-                    selected = selectedItem == 2,
-                    onClick = {
-                        selectedItem = 2
-                    },
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Filled.Payments,
-                            contentDescription = "Mis pagos"
-                        )
-                    },
-                    label = {
-                        Text("Mis pagos")
-                    }
-                )
-                NavigationBarItem(
-                    selected = selectedItem == 3,
-                    onClick = {
-                        selectedItem = 3
-                    },
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Filled.History,
-                            contentDescription = "Historial"
-                        )
-                    },
-                    label = {
-                        Text("Historial")
-                    }
-                )
-            }
-        }
+        bottomBar = { BottomBar(seleccionada = 0, onSeleccionar = onSeleccionar) }
     ) { innerPadding ->
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -120,51 +51,72 @@ fun InicioScreen() {
                 .padding(horizontal = 20.dp, vertical = 24.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            Column {
-                Text("Hola,", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text("Camila Rojas", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-            }
 
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0xFFD7EBDF))
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(Icons.Filled.CheckCircle, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                 Column {
-                    Text("Reserva confirmada", fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                    Text("Sábado 18 oct, 15:00–20:00. Te avisaremos el día anterior.", fontSize = 13.sp)
+                    Text("Hola,", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("Camila Rojas", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                }
+                IconButton(onClick = { }) {
+                    Icon(Icons.Filled.Notifications, contentDescription = "Notificaciones")
                 }
             }
 
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(MaterialTheme.colorScheme.primary)
-                    .padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFD7EBDF))
             ) {
-                Text("Saldo de la junta · Octubre", fontSize = 14.sp, color = Color(0xFFCFE5D8))
-                Text("$ 412.300", fontSize = 34.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text("Ingresos", fontSize = 12.sp, color = Color(0xFFCFE5D8))
-                        Text("+ $ 105.000", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Icon(
+                        Icons.Filled.CheckCircle,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Column {
+                        Text("Reserva confirmada", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text("Sábado 18 oct, 15:00–20:00. Te avisaremos el día anterior.", fontSize = 13.sp)
                     }
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text("Gastos", fontSize = 12.sp, color = Color(0xFFCFE5D8))
-                        Text("− $ 48.700", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+                }
+            }
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary)
+            ) {
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text("Saldo de la junta · Octubre", fontSize = 14.sp, color = Color(0xFFCFE5D8))
+                    Text("$ 412.300", fontSize = 34.sp, fontWeight = FontWeight.Bold, color = Color.White)
+
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("Ingresos", fontSize = 12.sp, color = Color(0xFFCFE5D8))
+                            Text("+ $ 105.000", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+                        }
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("Gastos", fontSize = 12.sp, color = Color(0xFFCFE5D8))
+                            Text("− $ 48.700", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+                        }
                     }
                 }
             }
 
             OutlinedButton(
                 onClick = { },
-                modifier = Modifier.fillMaxWidth().height(56.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
             ) {
                 Icon(Icons.Filled.Add, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
@@ -183,28 +135,32 @@ fun TarjetaReserva(titulo: String, fecha: String, estado: String) {
     val fondo = if (estado == "Confirmada") Color(0xFFD7EBDF) else Color(0xFFFCE8D5)
     val texto = if (estado == "Confirmada") Color(0xFF1F5C4A) else Color(0xFF8A3A0A)
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(Color.White)
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(titulo, fontWeight = FontWeight.Bold, fontSize = 15.sp)
-            Text(fecha, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Row(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(titulo, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                Text(fecha, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Card(
+                shape = RoundedCornerShape(8.dp),
+                colors = CardDefaults.cardColors(containerColor = fondo)
+            ) {
+                Text(
+                    estado,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = texto,
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                )
+            }
         }
-        Text(
-            estado,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = texto,
-            modifier = Modifier
-                .clip(RoundedCornerShape(8.dp))
-                .background(fondo)
-                .padding(horizontal = 10.dp, vertical = 6.dp)
-        )
     }
 }
 

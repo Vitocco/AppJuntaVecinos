@@ -60,4 +60,56 @@ class FinanzasRepository(private val dao: FinanzasDao) {
         dao.insertarInforme(Informe(titulo = "Informe agosto 2026", fechaPublicacion = Fechas.fecha(2026, 9, 2)))
         dao.insertarInforme(Informe(titulo = "Rendición 1er semestre 2026", fechaPublicacion = Fechas.fecha(2026, 7, 15), esRendicion = true))
     }
+
+    // Calcula el período, arma el texto y guarda el informe. Devuelve null si no hay movimientos.
+    suspend fun generarInforme(
+        esRendicion: Boolean,
+        desde: Long,
+        hasta: Long,
+        incluirComprobantes: Boolean
+    ): Informe? {
+        val limite = Fechas.diaSiguiente(hasta)      // el día "hasta" también se incluye
+        val ingresos = dao.totalDelMes("INGRESO", desde, limite)
+        val gastos = dao.totalDelMes("GASTO", desde, limite)
+        if (ingresos == 0 && gastos == 0) return null
+
+        val categorias = dao.gastosPorCategoria(desde, limite)
+        val comprobantes = if (incluirComprobantes) dao.contarComprobantes(desde, limite) else 0
+        val resultado = ingresos - gastos
+        val titulo = if (esRendicion) {
+            "Rendición ${Fechas.fechaCompleta(desde)} al ${Fechas.fechaCompleta(hasta)}"
+        } else {
+            "Informe ${Fechas.mesAnio(desde)}"
+        }
+
+        val contenido = buildString {
+            appendLine(titulo)
+            appendLine("Período: ${Fechas.fechaCompleta(desde)} al ${Fechas.fechaCompleta(hasta)}")
+            appendLine()
+            appendLine("Ingresos: ${Fechas.moneda(ingresos)}")
+            appendLine("Gastos: ${Fechas.moneda(gastos)}")
+            appendLine("Resultado del período: " + if (resultado < 0) "-${Fechas.moneda(-resultado)}" else Fechas.moneda(resultado))
+            if (categorias.isNotEmpty()) {
+                appendLine()
+                appendLine("Gastos por categoría:")
+                categorias.forEach { appendLine("- ${it.categoria}: ${Fechas.moneda(it.total)}") }
+            }
+            if (incluirComprobantes) {
+                appendLine()
+                append("Comprobantes adjuntos: $comprobantes")
+            }
+        }
+
+        val informe = Informe(
+            titulo = titulo,
+            fechaPublicacion = Fechas.hoy(),
+            esRendicion = esRendicion,
+            desde = desde,
+            hasta = hasta,
+            incluyeComprobantes = incluirComprobantes,
+            contenido = contenido
+        )
+        dao.insertarInforme(informe)
+        return informe
+    }
 }

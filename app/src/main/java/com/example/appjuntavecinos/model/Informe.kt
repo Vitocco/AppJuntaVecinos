@@ -8,5 +8,10 @@ data class Informe(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val titulo: String,
     val fechaPublicacion: Long,
-    val esRendicion: Boolean = false   // true = ícono con check, como "Rendición 1er semestre"
+    val esRendicion: Boolean = false,   // true = ícono con check, como "Rendición 1er semestre"
+    val desde: Long = 0,
+    val hasta: Long = 0,
+    val incluyeComprobantes: Boolean = false,
+    val contenido: String = ""
+
 )
