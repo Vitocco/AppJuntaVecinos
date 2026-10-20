@@ -22,7 +22,7 @@ fun AppNavigation() {
     // startDestination = la primera pantalla al abrir la app.
     NavHost(
         navController = navController,
-        startDestination = Rutas.LOGIN
+        startDestination = Rutas.MOVIMIENTO
 
     ) {
         // Cada composable(ruta) { ... } = "cuando la ruta sea X, muestra esta pantalla".

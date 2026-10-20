@@ -132,4 +132,9 @@ class MovimientoViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     fun consumirGuardado() { _guardadoCorrectamente.value = false }
+
+    // si no se eligió nada (uri null) no cambia nada
+    fun actualizarComprobanteDesdeGaleria(uri: Uri?) {
+        if (uri != null) _form.value = _form.value.copy(comprobante = uri)
+    }
 }

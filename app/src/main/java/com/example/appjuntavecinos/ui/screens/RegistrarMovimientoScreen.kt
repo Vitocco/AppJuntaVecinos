@@ -75,6 +75,7 @@ import coil.compose.AsyncImage
 import com.example.appjuntavecinos.data.CamaraUriFactory
 import com.example.appjuntavecinos.util.Fechas
 import com.example.appjuntavecinos.viewmodel.MovimientoViewModel
+import androidx.compose.material.icons.filled.Collections
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -130,6 +131,19 @@ fun RegistrarMovimientoScreen(
             context, Manifest.permission.CAMERA
         ) == PackageManager.PERMISSION_GRANTED
         if (permisoConcedido) abrirCamara() else permisoCamaraLauncher.launch(Manifest.permission.CAMERA)
+    }
+
+    val galeriaLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uriSeleccionado ->
+        if (uriSeleccionado != null) {
+            try {
+                val copia = CamaraUriFactory.copiarDesdeGaleria(context, uriSeleccionado)
+                viewModel.actualizarComprobanteDesdeGaleria(copia)
+            } catch (e: Exception) {
+                Toast.makeText(context, "No se pudo cargar la imagen: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     // ---------- Calendario del campo Fecha ----------
@@ -291,7 +305,7 @@ fun RegistrarMovimientoScreen(
             )
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Surface(
-                    modifier = Modifier.width(88.dp).height(110.dp),
+                    modifier = Modifier.width(88.dp).height(150.dp),
                     color = MaterialTheme.colorScheme.surfaceVariant,
                     shape = RoundedCornerShape(12.dp)
                 ) {
@@ -322,8 +336,17 @@ fun RegistrarMovimientoScreen(
                         Icon(Icons.Filled.CameraAlt, contentDescription = "Cámara")
                         Text(if (form.comprobante == null) "  Tomar foto" else "  Tomar otra foto")
                     }
+                    OutlinedButton(
+                        onClick = { galeriaLauncher.launch("image/*") },
+                        modifier = Modifier.fillMaxWidth().height(52.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+                    ) {
+                        Icon(Icons.Filled.Collections, contentDescription = "Galería")
+                        Text("  Elegir de galería")
+                    }
                     Text(
-                        "Usa la cámara del teléfono. Se pedirá permiso la primera vez.",
+                        "Usa la cámara del teléfono o elige una de tu galería. Se pedirá permiso la primera vez.",
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
