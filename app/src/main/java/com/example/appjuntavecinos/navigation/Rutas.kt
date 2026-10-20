@@ -17,5 +17,7 @@ object Rutas {
 
     const val MOVIMIENTO = "movimiento" //pantalla 7
 
+    const val SOCIO_INICIO = "socio_inicio"
+
 
 }

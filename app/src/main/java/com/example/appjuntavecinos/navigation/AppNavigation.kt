@@ -10,6 +10,7 @@ import com.example.appjuntavecinos.ui.screens.InicioScreen
 import com.example.appjuntavecinos.ui.screens.LoginScreen
 import com.example.appjuntavecinos.ui.screens.RegisterScreen
 import com.example.appjuntavecinos.ui.screens.RegistrarMovimientoScreen
+import com.example.appjuntavecinos.ui.screens.SocioHomeScreen
 import com.example.appjuntavecinos.ui.screens.SolicitarReservaScreen
 
 @Composable
@@ -28,8 +29,18 @@ fun AppNavigation() {
 
         composable(Rutas.LOGIN) {
             LoginScreen(
-                onLoginClick = { navController.navigate(Rutas.INICIO) },
+                onLoginClick = { rol ->
+                    if (rol == "SOCIO") navController.navigate(Rutas.SOCIO_INICIO)
+                    else navController.navigate(Rutas.INICIO)
+                },
                 onRegisterClick = { navController.navigate(Rutas.REGISTER) }
+            )
+        }
+
+        composable(Rutas.SOCIO_INICIO) {
+            SocioHomeScreen(
+                onSeleccionar = { if (it == 2) navController.navigate(Rutas.MOVIMIENTO) },
+                onRegistrarMovimiento = { navController.navigate(Rutas.MOVIMIENTO) }
             )
         }
 

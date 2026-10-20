@@ -68,7 +68,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     // 1° valida el formato, 2° busca en Room, 3° compara el hash de la contraseña
-    fun iniciarSesion(onExito: () -> Unit) {
+    fun iniciarSesion(onExito: (String) -> Unit) {
         if (!validarFormulario()) return
         val datos = _formulario.value
 
@@ -81,7 +81,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             } else if (usuario.rol != rolElegido) {
                 _errores.value = LoginErrores(email = "Esta cuenta no es de tipo ${rolElegido.lowercase()}")
             } else {
-                onExito()
+                onExito(rolElegido)
             }
         }
     }

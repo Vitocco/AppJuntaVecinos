@@ -58,7 +58,7 @@ import com.example.appjuntavecinos.viewmodel.LoginViewModel
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
-    onLoginClick: () -> Unit = {},
+    onLoginClick: (String) -> Unit = {},
     onRegisterClick: () -> Unit = {},
 
     viewModel: LoginViewModel = viewModel()
