@@ -67,6 +67,9 @@ dependencies {
     // Trae la función viewModel() para usar ViewModels dentro de un @Composable.
     // El ViewModel guarda el estado de la pantalla y sobrevive a rotaciones del celular.
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0")
+
+    // WorkManager → ejecuta la notificación aunque la app esté cerrada
+    implementation("androidx.work:work-runtime-ktx:2.10.0")
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

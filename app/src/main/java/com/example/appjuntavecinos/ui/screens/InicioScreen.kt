@@ -1,5 +1,11 @@
 package com.example.appjuntavecinos.ui.screens
 
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.LaunchedEffect
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,8 +43,17 @@ import com.example.appjuntavecinos.ui.theme.AppJuntaVecinosTheme
 
 @Composable
 fun InicioScreen(
-    onSeleccionar: (Int) -> Unit = {}
+    onSeleccionar: (Int) -> Unit = {},
+    onSolicitarArriendo: () -> Unit = {}
 ) {
+    // Pide el permiso de notificaciones al entrar (Android 13+). Mismo patrón que la cámara.
+    val permisoNotificacion = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= 33) {
+            permisoNotificacion.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+
     Scaffold(
         bottomBar = { BottomBar(seleccionada = 0, onSeleccionar = onSeleccionar) }
     ) { innerPadding ->
@@ -113,7 +128,7 @@ fun InicioScreen(
             }
 
             OutlinedButton(
-                onClick = { },
+                onClick = onSolicitarArriendo,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)

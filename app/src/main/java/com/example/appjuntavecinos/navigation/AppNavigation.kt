@@ -1,10 +1,16 @@
 package com.example.appjuntavecinos.navigation
 
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.appjuntavecinos.ui.components.BottomBar
 import com.example.appjuntavecinos.ui.screens.HistorialFinancieroScreen
 import com.example.appjuntavecinos.ui.screens.InicioScreen
 import com.example.appjuntavecinos.ui.screens.LoginScreen
@@ -12,6 +18,7 @@ import com.example.appjuntavecinos.ui.screens.RegisterScreen
 import com.example.appjuntavecinos.ui.screens.RegistrarMovimientoScreen
 import com.example.appjuntavecinos.ui.screens.SocioHomeScreen
 import com.example.appjuntavecinos.ui.screens.SolicitarReservaScreen
+import com.example.appjuntavecinos.util.programarAviso
 
 @Composable
 fun AppNavigation() {
@@ -52,17 +59,31 @@ fun AppNavigation() {
         }
 
         composable(Rutas.INICIO) {
-            InicioScreen(onSeleccionar = { navController.navigate(pestanas[it]) })
-        }
-
-        composable(Rutas.RESERVA) {
-            SolicitarReservaScreen(
-                onVolver = { navController.popBackStack() },
-                onSolicitudEnviada = { navController.popBackStack() }
+            InicioScreen(
+                onSeleccionar = { navController.navigate(pestanas[it]) },
+                onSolicitarArriendo = { navController.navigate(Rutas.RESERVA) }
             )
         }
 
-        composable(Rutas.MIS_PAGOS) { Text("Mis pagos: próximamente") }
+        composable(Rutas.RESERVA) {
+            val context = LocalContext.current
+            SolicitarReservaScreen(
+                onVolver = { navController.popBackStack() },
+                onSolicitudEnviada = {
+                    // Notificación a los 10 s, aunque la app esté cerrada
+                    programarAviso(context, "Solicitud recibida", "La directiva revisará tu reserva")
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(Rutas.MIS_PAGOS) {
+            Scaffold(
+                bottomBar = { BottomBar(seleccionada = 2, onSeleccionar = { navController.navigate(pestanas[it]) }) }
+            ) { innerPadding ->
+                Text("Mis pagos: próximamente", modifier = Modifier.padding(innerPadding).padding(20.dp))
+            }
+        }
 
         composable(Rutas.HISTORIAL) {
             HistorialFinancieroScreen()
@@ -74,6 +95,5 @@ fun AppNavigation() {
                 onMovimientoGuardado = { navController.popBackStack() }
             )
         }
-
     }
 }

@@ -67,12 +67,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.appjuntavecinos.data.CamaraUriFactory
+import com.example.appjuntavecinos.ui.theme.AppJuntaVecinosTheme
 import com.example.appjuntavecinos.util.Fechas
 import com.example.appjuntavecinos.viewmodel.MovimientoViewModel
 import androidx.compose.material.icons.filled.Collections
@@ -382,5 +384,14 @@ private fun MensajeErrorCampo(texto: String?) {
             Icon(Icons.Filled.ErrorOutline, null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(16.dp))
             Text(texto ?: "", color = MaterialTheme.colorScheme.error, fontSize = 13.sp)
         }
+    }
+}
+
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun RegistrarMovimientoScreenPreview() {
+    AppJuntaVecinosTheme {
+        RegistrarMovimientoScreen()
     }
 }

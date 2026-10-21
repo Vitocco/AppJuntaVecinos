@@ -4,14 +4,14 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.appjuntavecinos.model.Reserva
-import com.example.appjuntavecinos.model.Movimiento
 import com.example.appjuntavecinos.model.Informe
+import com.example.appjuntavecinos.model.Movimiento
+import com.example.appjuntavecinos.model.Reserva
 import com.example.appjuntavecinos.model.Usuario
 
 @Database(
     entities = [Reserva::class, Movimiento::class, Informe::class, Usuario::class],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
