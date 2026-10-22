@@ -1,14 +1,14 @@
-package com.example.appjuntavecinos.viewmodel
+package com.example.appjuntavecinos.ui.viewmodel
 
 import android.util.Patterns
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.appjuntavecinos.data.AppDatabase
+import com.example.appjuntavecinos.data.local.AppDatabase
 import com.example.appjuntavecinos.util.Seguridad
-import com.example.appjuntavecinos.model.Usuario
-import com.example.appjuntavecinos.repository.UsuarioRepository
-import com.example.appjuntavecinos.model.RegistroModel
+import com.example.appjuntavecinos.data.model.Usuario
+import com.example.appjuntavecinos.data.repository.UsuarioRepository
+import com.example.appjuntavecinos.data.model.RegistroModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

@@ -1,8 +1,8 @@
-package com.example.appjuntavecinos.repository
+package com.example.appjuntavecinos.data.repository
 
 
-import com.example.appjuntavecinos.data.ReservaDao
-import com.example.appjuntavecinos.model.Reserva
+import com.example.appjuntavecinos.data.local.ReservaDao
+import com.example.appjuntavecinos.data.model.Reserva
 
 class ReservaRepository(private val dao: ReservaDao) {
     suspend fun buscarChoques(fecha: Long, inicio: Int, termino: Int) =

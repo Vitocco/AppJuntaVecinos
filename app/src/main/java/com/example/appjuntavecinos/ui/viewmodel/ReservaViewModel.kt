@@ -1,11 +1,11 @@
-package com.example.appjuntavecinos.viewmodel
+package com.example.appjuntavecinos.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.appjuntavecinos.data.AppDatabase
-import com.example.appjuntavecinos.model.Reserva
-import com.example.appjuntavecinos.repository.ReservaRepository
+import com.example.appjuntavecinos.data.local.AppDatabase
+import com.example.appjuntavecinos.data.model.Reserva
+import com.example.appjuntavecinos.data.repository.ReservaRepository
 import com.example.appjuntavecinos.util.Fechas
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

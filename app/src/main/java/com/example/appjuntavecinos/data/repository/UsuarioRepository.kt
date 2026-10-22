@@ -1,7 +1,7 @@
-package com.example.appjuntavecinos.repository
+package com.example.appjuntavecinos.data.repository
 
-import com.example.appjuntavecinos.data.UsuarioDao
-import com.example.appjuntavecinos.model.Usuario
+import com.example.appjuntavecinos.data.local.UsuarioDao
+import com.example.appjuntavecinos.data.model.Usuario
 import com.example.appjuntavecinos.util.Seguridad
 
 // Intermediario entre el ViewModel y el DAO (igual que NoteRepository.kt del profe)

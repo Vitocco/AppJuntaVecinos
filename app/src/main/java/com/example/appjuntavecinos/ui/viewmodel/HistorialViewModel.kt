@@ -1,12 +1,12 @@
-package com.example.appjuntavecinos.viewmodel
+package com.example.appjuntavecinos.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.appjuntavecinos.data.AppDatabase
-import com.example.appjuntavecinos.data.GastoCategoria
-import com.example.appjuntavecinos.model.Informe
-import com.example.appjuntavecinos.repository.FinanzasRepository
+import com.example.appjuntavecinos.data.local.AppDatabase
+import com.example.appjuntavecinos.data.local.GastoCategoria
+import com.example.appjuntavecinos.data.model.Informe
+import com.example.appjuntavecinos.data.repository.FinanzasRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update

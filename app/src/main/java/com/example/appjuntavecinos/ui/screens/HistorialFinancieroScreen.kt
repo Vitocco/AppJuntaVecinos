@@ -47,11 +47,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.appjuntavecinos.ui.components.DosColumnas
-import com.example.appjuntavecinos.data.GastoCategoria
-import com.example.appjuntavecinos.model.Informe
+import com.example.appjuntavecinos.data.local.GastoCategoria
+import com.example.appjuntavecinos.data.model.Informe
 import com.example.appjuntavecinos.util.Fechas
-import com.example.appjuntavecinos.viewmodel.HistorialViewModel
-import com.example.appjuntavecinos.viewmodel.MesSeleccionado
+import com.example.appjuntavecinos.ui.viewmodel.HistorialViewModel
+import com.example.appjuntavecinos.ui.viewmodel.MesSeleccionado
 import kotlinx.coroutines.launch
 
 // Colores propios de esta pantalla (los del mockup que no están en el tema)

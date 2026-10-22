@@ -1,10 +1,10 @@
-package com.example.appjuntavecinos.data
+package com.example.appjuntavecinos.data.local
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import com.example.appjuntavecinos.model.Informe
-import com.example.appjuntavecinos.model.Movimiento
+import com.example.appjuntavecinos.data.model.Informe
+import com.example.appjuntavecinos.data.model.Movimiento
 
 
 //Resultado de la consulta agrupada

@@ -74,10 +74,10 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.appjuntavecinos.ui.components.DosColumnas
-import com.example.appjuntavecinos.data.CamaraUriFactory
+import com.example.appjuntavecinos.util.CamaraUriFactory
 import com.example.appjuntavecinos.ui.theme.AppJuntaVecinosTheme
 import com.example.appjuntavecinos.util.Fechas
-import com.example.appjuntavecinos.viewmodel.MovimientoViewModel
+import com.example.appjuntavecinos.ui.viewmodel.MovimientoViewModel
 import androidx.compose.material.icons.filled.Collections
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)

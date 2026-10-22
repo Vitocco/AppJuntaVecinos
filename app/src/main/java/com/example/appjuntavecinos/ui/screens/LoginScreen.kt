@@ -53,7 +53,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.appjuntavecinos.ui.components.DosColumnas
 import com.example.appjuntavecinos.ui.theme.AppJuntaVecinosTheme
-import com.example.appjuntavecinos.viewmodel.LoginViewModel
+import com.example.appjuntavecinos.ui.viewmodel.LoginViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -1,4 +1,4 @@
-package com.example.appjuntavecinos.data
+package com.example.appjuntavecinos.util
 
 import android.content.Context
 import android.net.Uri

@@ -1,4 +1,4 @@
-package com.example.appjuntavecinos.model
+package com.example.appjuntavecinos.data.model
 
 data class LoginModel(
     val email: String = "",

@@ -46,7 +46,7 @@ import com.example.appjuntavecinos.ui.components.DosColumnas
 import com.example.appjuntavecinos.ui.components.CampoHora
 import com.example.appjuntavecinos.ui.theme.AppJuntaVecinosTheme
 import com.example.appjuntavecinos.util.Fechas
-import com.example.appjuntavecinos.viewmodel.ReservaViewModel
+import com.example.appjuntavecinos.ui.viewmodel.ReservaViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -1,10 +1,10 @@
-package com.example.appjuntavecinos.repository
+package com.example.appjuntavecinos.data.repository
 
 
-import com.example.appjuntavecinos.data.FinanzasDao
-import com.example.appjuntavecinos.data.GastoCategoria
-import com.example.appjuntavecinos.model.Informe
-import com.example.appjuntavecinos.model.Movimiento
+import com.example.appjuntavecinos.data.local.FinanzasDao
+import com.example.appjuntavecinos.data.local.GastoCategoria
+import com.example.appjuntavecinos.data.model.Informe
+import com.example.appjuntavecinos.data.model.Movimiento
 import com.example.appjuntavecinos.util.Fechas
 
 data class ResumenMes(

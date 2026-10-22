@@ -1,9 +1,9 @@
-package com.example.appjuntavecinos.data
+package com.example.appjuntavecinos.data.local
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import com.example.appjuntavecinos.model.Reserva
+import com.example.appjuntavecinos.data.model.Reserva
 
 @Dao
 interface ReservaDao {

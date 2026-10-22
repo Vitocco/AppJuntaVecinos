@@ -43,7 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.appjuntavecinos.ui.components.DosColumnas
 import com.example.appjuntavecinos.ui.theme.AppJuntaVecinosTheme
-import com.example.appjuntavecinos.viewmodel.RegistroViewModel
+import com.example.appjuntavecinos.ui.viewmodel.RegistroViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
