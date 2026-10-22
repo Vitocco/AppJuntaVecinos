@@ -27,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.appjuntavecinos.ui.components.DosColumnas
 import com.example.appjuntavecinos.ui.components.BottomBarSocio
 import com.example.appjuntavecinos.ui.theme.AppJuntaVecinosTheme
 
@@ -47,35 +48,42 @@ fun SocioHomeScreen(
                 .padding(horizontal = 20.dp, vertical = 24.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            Column {
-                Text("Hola,", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text("Socio", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-            }
+            DosColumnas(
+                espacio = 20.dp,
+                izquierda = {
+                    Column {
+                        Text("Hola,", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("Socio", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                    }
 
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary)
-            ) {
-                Column(
-                    modifier = Modifier.padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Text("Saldo de la junta · Octubre", fontSize = 14.sp, color = Color(0xFFCFE5D8))
-                    Text("$ 412.300", fontSize = 34.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(20.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Text("Saldo de la junta · Octubre", fontSize = 14.sp, color = Color(0xFFCFE5D8))
+                            Text("$ 412.300", fontSize = 34.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                        }
+                    }
+
+                },
+                derecha = {
+                    Button(
+                        onClick = onRegistrarMovimiento,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
+                    ) {
+                        Icon(Icons.Filled.Add, contentDescription = null)
+                        Spacer(Modifier.width(8.dp))
+                        Text("Registrar movimiento", fontSize = 16.sp)
+                    }
                 }
-            }
-
-            Button(
-                onClick = onRegistrarMovimiento,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
-            ) {
-                Icon(Icons.Filled.Add, contentDescription = null)
-                Spacer(Modifier.width(8.dp))
-                Text("Registrar movimiento", fontSize = 16.sp)
-            }
+            )
         }
     }
 }

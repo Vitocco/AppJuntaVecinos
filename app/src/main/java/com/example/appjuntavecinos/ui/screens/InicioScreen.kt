@@ -38,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.appjuntavecinos.ui.components.DosColumnas
 import com.example.appjuntavecinos.ui.components.BottomBar
 import com.example.appjuntavecinos.ui.theme.AppJuntaVecinosTheme
 
@@ -66,81 +67,88 @@ fun InicioScreen(
                 .padding(horizontal = 20.dp, vertical = 24.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
+            DosColumnas(
+                espacio = 20.dp,
+                izquierda = {
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    Text("Hola,", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text("Camila Rojas", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                }
-                IconButton(onClick = { }) {
-                    Icon(Icons.Filled.Notifications, contentDescription = "Notificaciones")
-                }
-            }
-
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFD7EBDF))
-            ) {
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Icon(
-                        Icons.Filled.CheckCircle,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Column {
-                        Text("Reserva confirmada", fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                        Text("Sábado 18 oct, 15:00–20:00. Te avisaremos el día anterior.", fontSize = 13.sp)
-                    }
-                }
-            }
-
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary)
-            ) {
-                Column(
-                    modifier = Modifier.padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Text("Saldo de la junta · Octubre", fontSize = 14.sp, color = Color(0xFFCFE5D8))
-                    Text("$ 412.300", fontSize = 34.sp, fontWeight = FontWeight.Bold, color = Color.White)
-
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text("Ingresos", fontSize = 12.sp, color = Color(0xFFCFE5D8))
-                            Text("+ $ 105.000", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text("Hola,", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("Camila Rojas", fontSize = 24.sp, fontWeight = FontWeight.Bold)
                         }
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text("Gastos", fontSize = 12.sp, color = Color(0xFFCFE5D8))
-                            Text("− $ 48.700", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+                        IconButton(onClick = { }) {
+                            Icon(Icons.Filled.Notifications, contentDescription = "Notificaciones")
                         }
                     }
+
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFD7EBDF))
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Icon(
+                                Icons.Filled.CheckCircle,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Column {
+                                Text("Reserva confirmada", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                Text("Sábado 18 oct, 15:00–20:00. Te avisaremos el día anterior.", fontSize = 13.sp)
+                            }
+                        }
+                    }
+
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(20.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Text("Saldo de la junta · Octubre", fontSize = 14.sp, color = Color(0xFFCFE5D8))
+                            Text("$ 412.300", fontSize = 34.sp, fontWeight = FontWeight.Bold, color = Color.White)
+
+                            Row(modifier = Modifier.fillMaxWidth()) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text("Ingresos", fontSize = 12.sp, color = Color(0xFFCFE5D8))
+                                    Text("+ $ 105.000", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+                                }
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text("Gastos", fontSize = 12.sp, color = Color(0xFFCFE5D8))
+                                    Text("− $ 48.700", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+                                }
+                            }
+                        }
+                    }
+
+                },
+                derecha = {
+                    OutlinedButton(
+                        onClick = onSolicitarArriendo,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
+                    ) {
+                        Icon(Icons.Filled.Add, contentDescription = null)
+                        Spacer(Modifier.width(8.dp))
+                        Text("Solicitar arriendo de la sede", fontSize = 16.sp)
+                    }
+
+                    Text("Mis reservas", fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                    TarjetaReserva("Cumpleaños familiar", "Sáb 18 oct · 15:00–20:00", "Confirmada")
+                    TarjetaReserva("Taller de tejido", "Mié 5 nov · 18:00–20:00", "Pendiente")
                 }
-            }
-
-            OutlinedButton(
-                onClick = onSolicitarArriendo,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
-            ) {
-                Icon(Icons.Filled.Add, contentDescription = null)
-                Spacer(Modifier.width(8.dp))
-                Text("Solicitar arriendo de la sede", fontSize = 16.sp)
-            }
-
-            Text("Mis reservas", fontSize = 17.sp, fontWeight = FontWeight.Bold)
-            TarjetaReserva("Cumpleaños familiar", "Sáb 18 oct · 15:00–20:00", "Confirmada")
-            TarjetaReserva("Taller de tejido", "Mié 5 nov · 18:00–20:00", "Pendiente")
+            )
         }
     }
 }

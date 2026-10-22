@@ -51,6 +51,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.appjuntavecinos.ui.components.DosColumnas
 import com.example.appjuntavecinos.ui.theme.AppJuntaVecinosTheme
 import com.example.appjuntavecinos.viewmodel.LoginViewModel
 
@@ -82,112 +83,120 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .size(72.dp)
-                    .clip(RoundedCornerShape(24.dp))
-                    .background(MaterialTheme.colorScheme.primary),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Home,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.size(38.dp)
-                )
-            }
-
-            Text(
-                text = "Junta Zaror",
-                fontSize = 26.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = "Arriendos y transparencia de la sede",
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                roles.forEachIndexed { index, rol ->
-                    SegmentedButton(
-                        selected = formulario.rol == index,
-                        onClick = { viewModel.actualizarRol(index) },
-                        shape = SegmentedButtonDefaults.itemShape(index = index, count = roles.size)
+            DosColumnas(
+                espacio = 16.dp,
+                alineacion = Alignment.CenterHorizontally,
+                izquierda = {
+                    Box(
+                        modifier = Modifier
+                            .size(72.dp)
+                            .clip(RoundedCornerShape(24.dp))
+                            .background(MaterialTheme.colorScheme.primary),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Text(rol)
-                    }
-                }
-            }
-            Text(
-                text = "Socio: directiva, secretaría o tesorería",
-                fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            OutlinedTextField(
-                value = formulario.email,
-                onValueChange = { viewModel.actualizarEmail(it) },
-                label = { Text("Correo electrónico") },
-                leadingIcon = { Icon(Icons.Filled.Email, contentDescription = null) },
-                trailingIcon = {
-                    if (errores.email != null) {
-                        Icon(Icons.Filled.Error, contentDescription = "Error", tint = MaterialTheme.colorScheme.error)
-                    }
-                },
-                isError = errores.email != null,
-                supportingText = {
-                    if (errores.email != null) Text(errores.email!!)
-                    else Text("Ej: nombre@correo.com")
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            OutlinedTextField(
-                value = formulario.password,
-                onValueChange = { viewModel.actualizarPassword(it) },
-                label = { Text("Contraseña") },
-                leadingIcon = {
-                    if (errores.password != null) {
-                        Icon(Icons.Filled.Error, contentDescription = "Error", tint = MaterialTheme.colorScheme.error)
-                    } else {
-                        Icon(Icons.Filled.Lock, contentDescription = null)
-                    }
-                },
-                isError = errores.password != null,
-                supportingText = {
-                    if (errores.password != null) Text(errores.password!!)
-                    else Text("Mínimo 4 caracteres")
-                },
-                trailingIcon = {
-                    IconButton(onClick = { mostrarPassword = !mostrarPassword }) {
                         Icon(
-                            imageVector = if (mostrarPassword) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
-                            contentDescription = if (mostrarPassword) "Ocultar contraseña" else "Mostrar contraseña"
+                            imageVector = Icons.Filled.Home,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.size(38.dp)
                         )
                     }
+
+                    Text(
+                        text = "Junta Zaror",
+                        fontSize = 26.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "Arriendos y transparencia de la sede",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                        roles.forEachIndexed { index, rol ->
+                            SegmentedButton(
+                                selected = formulario.rol == index,
+                                onClick = { viewModel.actualizarRol(index) },
+                                shape = SegmentedButtonDefaults.itemShape(index = index, count = roles.size)
+                            ) {
+                                Text(rol)
+                            }
+                        }
+                    }
+                    Text(
+                        text = "Socio: directiva, secretaría o tesorería",
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
                 },
-                visualTransformation = if (mostrarPassword) VisualTransformation.None else PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
+                derecha = {
+                    OutlinedTextField(
+                        value = formulario.email,
+                        onValueChange = { viewModel.actualizarEmail(it) },
+                        label = { Text("Correo electrónico") },
+                        leadingIcon = { Icon(Icons.Filled.Email, contentDescription = null) },
+                        trailingIcon = {
+                            if (errores.email != null) {
+                                Icon(Icons.Filled.Error, contentDescription = "Error", tint = MaterialTheme.colorScheme.error)
+                            }
+                        },
+                        isError = errores.email != null,
+                        supportingText = {
+                            if (errores.email != null) Text(errores.email!!)
+                            else Text("Ej: nombre@correo.com")
+                        },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    OutlinedTextField(
+                        value = formulario.password,
+                        onValueChange = { viewModel.actualizarPassword(it) },
+                        label = { Text("Contraseña") },
+                        leadingIcon = {
+                            if (errores.password != null) {
+                                Icon(Icons.Filled.Error, contentDescription = "Error", tint = MaterialTheme.colorScheme.error)
+                            } else {
+                                Icon(Icons.Filled.Lock, contentDescription = null)
+                            }
+                        },
+                        isError = errores.password != null,
+                        supportingText = {
+                            if (errores.password != null) Text(errores.password!!)
+                            else Text("Mínimo 4 caracteres")
+                        },
+                        trailingIcon = {
+                            IconButton(onClick = { mostrarPassword = !mostrarPassword }) {
+                                Icon(
+                                    imageVector = if (mostrarPassword) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
+                                    contentDescription = if (mostrarPassword) "Ocultar contraseña" else "Mostrar contraseña"
+                                )
+                            }
+                        },
+                        visualTransformation = if (mostrarPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Button(
+                        onClick = { viewModel.iniciarSesion(onExito = onLoginClick) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp)
+                    ) {
+                        Text("Ingresar", fontSize = 16.sp)
+                    }
+
+                    TextButton(onClick = onRegisterClick) {
+                        Text("¿No tienes cuenta? Regístrate como vecino")
+                    }
+                }
             )
-
-            Button(
-                onClick = { viewModel.iniciarSesion(onExito = onLoginClick) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp)
-            ) {
-                Text("Ingresar", fontSize = 16.sp)
-            }
-
-            TextButton(onClick = onRegisterClick) {
-                Text("¿No tienes cuenta? Regístrate como vecino")
-            }
         }
     }
 }

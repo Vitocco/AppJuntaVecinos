@@ -46,6 +46,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.appjuntavecinos.ui.components.DosColumnas
 import com.example.appjuntavecinos.data.GastoCategoria
 import com.example.appjuntavecinos.model.Informe
 import com.example.appjuntavecinos.util.Fechas
@@ -87,21 +88,28 @@ fun HistorialFinancieroScreen(
                     CircularProgressIndicator()
                 }
             } else {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    TarjetaResumen("Ingresos", estado.ingresos, c.primary, false, Modifier.weight(1f))
-                    TarjetaResumen("Gastos", estado.gastos, ColorGasto, false, Modifier.weight(1f))
-                    TarjetaResumen("Saldo", estado.saldo, Color.White, true, Modifier.weight(1f))
-                }
+                DosColumnas(
+                    espacio = 16.dp,
+                    izquierda = {
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            TarjetaResumen("Ingresos", estado.ingresos, c.primary, false, Modifier.weight(1f))
+                            TarjetaResumen("Gastos", estado.gastos, ColorGasto, false, Modifier.weight(1f))
+                            TarjetaResumen("Saldo", estado.saldo, Color.White, true, Modifier.weight(1f))
+                        }
 
-                TarjetaGastos(estado.gastosPorCategoria)
+                        TarjetaGastos(estado.gastosPorCategoria)
 
-                Text("Informes y rendiciones", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                estado.informes.forEach { informe ->
-                    FilaInforme(informe) {
-                        // Por ahora simulado; después se reemplaza por un recurso nativo
-                        scope.launch { snackbarHostState.showSnackbar("Descarga simulada: ${informe.titulo}") }
+                    },
+                    derecha = {
+                        Text("Informes y rendiciones", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        estado.informes.forEach { informe ->
+                            FilaInforme(informe) {
+                                // Por ahora simulado; después se reemplaza por un recurso nativo
+                                scope.launch { snackbarHostState.showSnackbar("Descarga simulada: ${informe.titulo}") }
+                            }
+                        }
                     }
-                }
+                )
             }
 
             mensajeError?.let { Text(it, color = c.error) }

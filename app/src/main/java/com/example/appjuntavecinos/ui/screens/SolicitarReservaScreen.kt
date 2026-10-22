@@ -42,6 +42,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.appjuntavecinos.ui.components.DosColumnas
 import com.example.appjuntavecinos.ui.components.CampoHora
 import com.example.appjuntavecinos.ui.theme.AppJuntaVecinosTheme
 import com.example.appjuntavecinos.util.Fechas
@@ -87,75 +88,82 @@ fun SolicitarReservaScreen(
                 .padding(horizontal = 20.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text("Disponibilidad · ${Fechas.mes(dias.first())}", fontWeight = FontWeight.SemiBold)
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                dias.forEach { dia ->
-                    DiaChip(dia, form.fecha == dia, { viewModel.actualizarFecha(dia) }, Modifier.weight(1f))
-                }
-            }
-            MensajeError(errores.fecha)
+            DosColumnas(
+                espacio = 12.dp,
+                izquierda = {
+                    Text("Disponibilidad · ${Fechas.mes(dias.first())}", fontWeight = FontWeight.SemiBold)
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        dias.forEach { dia ->
+                            DiaChip(dia, form.fecha == dia, { viewModel.actualizarFecha(dia) }, Modifier.weight(1f))
+                        }
+                    }
+                    MensajeError(errores.fecha)
 
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                CampoHora("Hora inicio", form.horaInicio, errores.horaInicio != null,
-                    { viewModel.actualizarHoraInicio(it) }, Modifier.weight(1f))
-                CampoHora("Hora término", form.horaTermino, errores.horaTermino != null,
-                    { viewModel.actualizarHoraTermino(it) }, Modifier.weight(1f))
-            }
-            MensajeError(errores.horaInicio ?: errores.horaTermino)
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        CampoHora("Hora inicio", form.horaInicio, errores.horaInicio != null,
+                            { viewModel.actualizarHoraInicio(it) }, Modifier.weight(1f))
+                        CampoHora("Hora término", form.horaTermino, errores.horaTermino != null,
+                            { viewModel.actualizarHoraTermino(it) }, Modifier.weight(1f))
+                    }
+                    MensajeError(errores.horaInicio ?: errores.horaTermino)
 
-            OutlinedTextField(
-                value = form.motivo,
-                onValueChange = { viewModel.actualizarMotivo(it) },
-                label = { Text("Motivo del arriendo") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-                isError = errores.motivo != null,
-                trailingIcon = {
-                    if (errores.motivo != null)
-                        Icon(Icons.Filled.ErrorOutline, "Error", tint = MaterialTheme.colorScheme.error)
-                    else if (form.motivo.trim().length >= 5)
-                        Icon(Icons.Filled.CheckCircle, "Campo válido", tint = MaterialTheme.colorScheme.primary)
                 },
-                supportingText = { errores.motivo?.let { Text(it) } }
-            )
+                derecha = {
+                    OutlinedTextField(
+                        value = form.motivo,
+                        onValueChange = { viewModel.actualizarMotivo(it) },
+                        label = { Text("Motivo del arriendo") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = errores.motivo != null,
+                        trailingIcon = {
+                            if (errores.motivo != null)
+                                Icon(Icons.Filled.ErrorOutline, "Error", tint = MaterialTheme.colorScheme.error)
+                            else if (form.motivo.trim().length >= 5)
+                                Icon(Icons.Filled.CheckCircle, "Campo válido", tint = MaterialTheme.colorScheme.primary)
+                        },
+                        supportingText = { errores.motivo?.let { Text(it) } }
+                    )
 
-            OutlinedTextField(
-                value = form.asistentes,
-                onValueChange = { viewModel.actualizarAsistentes(it) },
-                label = { Text("N° de asistentes") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth(),
-                isError = errores.asistentes != null,
-                trailingIcon = {
-                    if (errores.asistentes != null)
-                        Icon(Icons.Filled.ErrorOutline, "Error", tint = MaterialTheme.colorScheme.error)
-                },
-                supportingText = {
-                    Text(errores.asistentes ?: "Máximo ${ReservaViewModel.MAX_ASISTENTES} personas")
+                    OutlinedTextField(
+                        value = form.asistentes,
+                        onValueChange = { viewModel.actualizarAsistentes(it) },
+                        label = { Text("N° de asistentes") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = errores.asistentes != null,
+                        trailingIcon = {
+                            if (errores.asistentes != null)
+                                Icon(Icons.Filled.ErrorOutline, "Error", tint = MaterialTheme.colorScheme.error)
+                        },
+                        supportingText = {
+                            Text(errores.asistentes ?: "Máximo ${ReservaViewModel.MAX_ASISTENTES} personas")
+                        }
+                    )
+
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            Modifier.fillMaxWidth().padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("Valor referencial")
+                            Text("\$ 35.000", fontWeight = FontWeight.Bold)
+                        }
+                    }
+
+                    mensajeError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+
+                    Button(
+                        onClick = { viewModel.enviar() },
+                        modifier = Modifier.fillMaxWidth().height(52.dp)
+                    ) { Text("Enviar solicitud", fontSize = 16.sp) }
                 }
             )
-
-            Surface(
-                shape = RoundedCornerShape(12.dp),
-                color = MaterialTheme.colorScheme.primaryContainer,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    Modifier.fillMaxWidth().padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("Valor referencial")
-                    Text("\$ 35.000", fontWeight = FontWeight.Bold)
-                }
-            }
-
-            mensajeError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-
-            Button(
-                onClick = { viewModel.enviar() },
-                modifier = Modifier.fillMaxWidth().height(52.dp)
-            ) { Text("Enviar solicitud", fontSize = 16.sp) }
         }
     }
 }

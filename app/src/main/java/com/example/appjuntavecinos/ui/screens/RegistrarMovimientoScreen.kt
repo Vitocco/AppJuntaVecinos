@@ -73,6 +73,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.example.appjuntavecinos.ui.components.DosColumnas
 import com.example.appjuntavecinos.data.CamaraUriFactory
 import com.example.appjuntavecinos.ui.theme.AppJuntaVecinosTheme
 import com.example.appjuntavecinos.util.Fechas
@@ -221,139 +222,146 @@ fun RegistrarMovimientoScreen(
                 .padding(horizontal = 20.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Ingreso / Gasto
-            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                tipos.forEachIndexed { index, (valor, texto) ->
-                    SegmentedButton(
-                        selected = form.tipo == valor,
-                        onClick = { viewModel.actualizarTipo(valor) },
-                        shape = SegmentedButtonDefaults.itemShape(index = index, count = tipos.size)
-                    ) { Text(texto) }
-                }
-            }
+            DosColumnas(
+                espacio = 12.dp,
+                izquierda = {
+                    // Ingreso / Gasto
+                    SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                        tipos.forEachIndexed { index, (valor, texto) ->
+                            SegmentedButton(
+                                selected = form.tipo == valor,
+                                onClick = { viewModel.actualizarTipo(valor) },
+                                shape = SegmentedButtonDefaults.itemShape(index = index, count = tipos.size)
+                            ) { Text(texto) }
+                        }
+                    }
 
-            // Categoría
-            Text(
-                "Categoría", fontWeight = FontWeight.SemiBold,
-                color = if (errores.categoria != null) MaterialTheme.colorScheme.error
-                else MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                MovimientoViewModel.categoriasDe(form.tipo).forEach { cat ->
-                    CategoriaChip(cat, form.categoria == cat) { viewModel.actualizarCategoria(cat) }
-                }
-            }
-            MensajeErrorCampo(errores.categoria)
+                    // Categoría
+                    Text(
+                        "Categoría", fontWeight = FontWeight.SemiBold,
+                        color = if (errores.categoria != null) MaterialTheme.colorScheme.error
+                        else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        MovimientoViewModel.categoriasDe(form.tipo).forEach { cat ->
+                            CategoriaChip(cat, form.categoria == cat) { viewModel.actualizarCategoria(cat) }
+                        }
+                    }
+                    MensajeErrorCampo(errores.categoria)
 
-            // Monto
-            OutlinedTextField(
-                value = form.monto,
-                onValueChange = { viewModel.actualizarMonto(it) },
-                label = { Text("Monto (CLP)") },
-                placeholder = { Text("0") },
-                prefix = { Text("\$ ") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth(),
-                isError = errores.monto != null,
-                trailingIcon = {
-                    if (errores.monto != null)
-                        Icon(Icons.Filled.ErrorOutline, "Error", tint = MaterialTheme.colorScheme.error)
+                    // Monto
+                    OutlinedTextField(
+                        value = form.monto,
+                        onValueChange = { viewModel.actualizarMonto(it) },
+                        label = { Text("Monto (CLP)") },
+                        placeholder = { Text("0") },
+                        prefix = { Text("\$ ") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = errores.monto != null,
+                        trailingIcon = {
+                            if (errores.monto != null)
+                                Icon(Icons.Filled.ErrorOutline, "Error", tint = MaterialTheme.colorScheme.error)
+                        },
+                        supportingText = { errores.monto?.let { Text(it) } }
+                    )
+
                 },
-                supportingText = { errores.monto?.let { Text(it) } }
-            )
+                derecha = {
+                    // Fecha (abre el calendario) + Detalle
+                    val interaccionFecha = remember { MutableInteractionSource() }
+                    LaunchedEffect(interaccionFecha) {
+                        interaccionFecha.interactions.collect {
+                            if (it is PressInteraction.Release) mostrarCalendario = true
+                        }
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        OutlinedTextField(
+                            value = Fechas.fechaCompleta(form.fecha),
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Fecha") },
+                            singleLine = true,
+                            interactionSource = interaccionFecha,
+                            trailingIcon = { Icon(Icons.Filled.CalendarMonth, contentDescription = "Elegir fecha") },
+                            isError = errores.fecha != null,
+                            modifier = Modifier.weight(1f)
+                        )
+                        OutlinedTextField(
+                            value = form.detalle,
+                            onValueChange = { viewModel.actualizarDetalle(it) },
+                            label = { Text("Detalle") },
+                            singleLine = true,
+                            isError = errores.detalle != null,
+                            trailingIcon = {
+                                if (errores.detalle != null)
+                                    Icon(Icons.Filled.ErrorOutline, "Error", tint = MaterialTheme.colorScheme.error)
+                            },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                    MensajeErrorCampo(errores.fecha ?: errores.detalle)
 
-            // Fecha (abre el calendario) + Detalle
-            val interaccionFecha = remember { MutableInteractionSource() }
-            LaunchedEffect(interaccionFecha) {
-                interaccionFecha.interactions.collect {
-                    if (it is PressInteraction.Release) mostrarCalendario = true
-                }
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(
-                    value = Fechas.fechaCompleta(form.fecha),
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Fecha") },
-                    singleLine = true,
-                    interactionSource = interaccionFecha,
-                    trailingIcon = { Icon(Icons.Filled.CalendarMonth, contentDescription = "Elegir fecha") },
-                    isError = errores.fecha != null,
-                    modifier = Modifier.weight(1f)
-                )
-                OutlinedTextField(
-                    value = form.detalle,
-                    onValueChange = { viewModel.actualizarDetalle(it) },
-                    label = { Text("Detalle") },
-                    singleLine = true,
-                    isError = errores.detalle != null,
-                    trailingIcon = {
-                        if (errores.detalle != null)
-                            Icon(Icons.Filled.ErrorOutline, "Error", tint = MaterialTheme.colorScheme.error)
-                    },
-                    modifier = Modifier.weight(1f)
-                )
-            }
-            MensajeErrorCampo(errores.fecha ?: errores.detalle)
-
-            // Comprobante (cámara)
-            Text(
-                "Comprobante", fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Surface(
-                    modifier = Modifier.width(88.dp).height(150.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        if (form.comprobante != null) {
-                            AsyncImage(
-                                model = form.comprobante,
-                                contentDescription = "Foto del comprobante",
-                                modifier = Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Crop
-                            )
-                        } else {
-                            Icon(
-                                Icons.Filled.Image, contentDescription = "Sin comprobante",
-                                modifier = Modifier.size(32.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    // Comprobante (cámara)
+                    Text(
+                        "Comprobante", fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Surface(
+                            modifier = Modifier.width(88.dp).height(150.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                if (form.comprobante != null) {
+                                    AsyncImage(
+                                        model = form.comprobante,
+                                        contentDescription = "Foto del comprobante",
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                } else {
+                                    Icon(
+                                        Icons.Filled.Image, contentDescription = "Sin comprobante",
+                                        modifier = Modifier.size(32.dp),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            OutlinedButton(
+                                onClick = { tomarFotografia() },
+                                modifier = Modifier.fillMaxWidth().height(52.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+                            ) {
+                                Icon(Icons.Filled.CameraAlt, contentDescription = "Cámara")
+                                Text(if (form.comprobante == null) "  Tomar foto" else "  Tomar otra foto")
+                            }
+                            OutlinedButton(
+                                onClick = { galeriaLauncher.launch("image/*") },
+                                modifier = Modifier.fillMaxWidth().height(52.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+                            ) {
+                                Icon(Icons.Filled.Collections, contentDescription = "Galería")
+                                Text("  Elegir de galería")
+                            }
+                            Text(
+                                "Usa la cámara del teléfono o elige una de tu galería. Se pedirá permiso la primera vez.",
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
                 }
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    OutlinedButton(
-                        onClick = { tomarFotografia() },
-                        modifier = Modifier.fillMaxWidth().height(52.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
-                    ) {
-                        Icon(Icons.Filled.CameraAlt, contentDescription = "Cámara")
-                        Text(if (form.comprobante == null) "  Tomar foto" else "  Tomar otra foto")
-                    }
-                    OutlinedButton(
-                        onClick = { galeriaLauncher.launch("image/*") },
-                        modifier = Modifier.fillMaxWidth().height(52.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
-                    ) {
-                        Icon(Icons.Filled.Collections, contentDescription = "Galería")
-                        Text("  Elegir de galería")
-                    }
-                    Text(
-                        "Usa la cámara del teléfono o elige una de tu galería. Se pedirá permiso la primera vez.",
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
+            )
         }
     }
 }

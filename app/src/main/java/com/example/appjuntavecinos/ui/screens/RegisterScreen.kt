@@ -41,6 +41,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.appjuntavecinos.ui.components.DosColumnas
 import com.example.appjuntavecinos.ui.theme.AppJuntaVecinosTheme
 import com.example.appjuntavecinos.viewmodel.RegistroViewModel
 import java.text.SimpleDateFormat
@@ -79,140 +80,147 @@ fun RegisterScreen(
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            OutlinedTextField(
-                value = formulario.nombre,
-                onValueChange = { viewModel.actualizarNombre(it) },
-                label = { Text("Nombre completo") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-                isError = errores.nombre != null,
-                trailingIcon = { IconoError(errores.nombre) },
-                supportingText = { errores.nombre?.let { Text(it) } }
-            )
+            DosColumnas(
+                espacio = 8.dp,
+                izquierda = {
+                    OutlinedTextField(
+                        value = formulario.nombre,
+                        onValueChange = { viewModel.actualizarNombre(it) },
+                        label = { Text("Nombre completo") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = errores.nombre != null,
+                        trailingIcon = { IconoError(errores.nombre) },
+                        supportingText = { errores.nombre?.let { Text(it) } }
+                    )
 
-            OutlinedTextField(
-                value = formulario.email,
-                onValueChange = { viewModel.actualizarEmail(it) },
-                label = { Text("Correo electrónico") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                modifier = Modifier.fillMaxWidth(),
-                isError = errores.email != null,
-                trailingIcon = { IconoError(errores.email) },
-                supportingText = {
-                    if (errores.email != null) Text(errores.email!!) else Text("Ej: nombre@correo.com")
+                    OutlinedTextField(
+                        value = formulario.email,
+                        onValueChange = { viewModel.actualizarEmail(it) },
+                        label = { Text("Correo electrónico") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = errores.email != null,
+                        trailingIcon = { IconoError(errores.email) },
+                        supportingText = {
+                            if (errores.email != null) Text(errores.email!!) else Text("Ej: nombre@correo.com")
+                        }
+                    )
+
+                    OutlinedTextField(
+                        value = formulario.telefono,
+                        onValueChange = { viewModel.actualizarTelefono(it) },
+                        label = { Text("Teléfono") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = errores.telefono != null,
+                        trailingIcon = { IconoError(errores.telefono) },
+                        supportingText = {
+                            if (errores.telefono != null) Text(errores.telefono!!) else Text("9 dígitos. Ej: 912345678")
+                        }
+                    )
+
+                    OutlinedTextField(
+                        value = formulario.numeroCasa,
+                        onValueChange = { viewModel.actualizarNumeroCasa(it) },
+                        label = { Text("N° de casa / depto") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = errores.numeroCasa != null,
+                        trailingIcon = { IconoError(errores.numeroCasa) },
+                        supportingText = { errores.numeroCasa?.let { Text(it) } }
+                    )
+
+                    val fechaTexto = formulario.fechaNacimiento?.let {
+                        SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).apply {
+                            timeZone = TimeZone.getTimeZone("UTC")
+                        }.format(Date(it))
+                    } ?: "Seleccionar fecha"
+
+                    OutlinedTextField(
+                        value = fechaTexto,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Fecha de nacimiento") },
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = errores.fechaNacimiento != null,
+                        trailingIcon = { IconoError(errores.fechaNacimiento) },
+                        supportingText = { errores.fechaNacimiento?.let { Text(it) } }
+                    )
+                    TextButton(onClick = { mostrarDatePicker = true }) {
+                        Text("Seleccionar fecha")
+                    }
+
+                },
+                derecha = {
+                    OutlinedTextField(
+                        value = formulario.password,
+                        onValueChange = { viewModel.actualizarPassword(it) },
+                        label = { Text("Contraseña") },
+                        singleLine = true,
+                        visualTransformation = PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = errores.password != null,
+                        trailingIcon = { IconoError(errores.password) },
+                        supportingText = {
+                            if (errores.password != null) Text(errores.password!!) else Text("Mínimo 4 caracteres")
+                        }
+                    )
+
+                    OutlinedTextField(
+                        value = formulario.confirmarPassword,
+                        onValueChange = { viewModel.actualizarConfirmarPassword(it) },
+                        label = { Text("Confirmar contraseña") },
+                        singleLine = true,
+                        visualTransformation = PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = errores.confirmarPassword != null,
+                        trailingIcon = { IconoError(errores.confirmarPassword) },
+                        supportingText = { errores.confirmarPassword?.let { Text(it) } }
+                    )
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(
+                            checked = formulario.aceptaReglamento,
+                            onCheckedChange = { viewModel.actualizarAceptaReglamento(it) }
+                        )
+                        Text("Acepto el reglamento de la junta de vecinos")
+                    }
+                    if (errores.aceptaReglamento != null) {
+                        Text(
+                            text = errores.aceptaReglamento!!,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(start = 12.dp)
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Recibir avisos de mis reservas")
+                        Switch(
+                            checked = formulario.recibirAvisos,
+                            onCheckedChange = { viewModel.actualizarRecibirAvisos(it) }
+                        )
+                    }
+
+                    Button(
+                        onClick = { viewModel.guardar(onExito = onRegistroExitoso) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp)
+                    ) {
+                        Text("Crear cuenta")
+                    }
                 }
             )
-
-            OutlinedTextField(
-                value = formulario.telefono,
-                onValueChange = { viewModel.actualizarTelefono(it) },
-                label = { Text("Teléfono") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                modifier = Modifier.fillMaxWidth(),
-                isError = errores.telefono != null,
-                trailingIcon = { IconoError(errores.telefono) },
-                supportingText = {
-                    if (errores.telefono != null) Text(errores.telefono!!) else Text("9 dígitos. Ej: 912345678")
-                }
-            )
-
-            OutlinedTextField(
-                value = formulario.numeroCasa,
-                onValueChange = { viewModel.actualizarNumeroCasa(it) },
-                label = { Text("N° de casa / depto") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth(),
-                isError = errores.numeroCasa != null,
-                trailingIcon = { IconoError(errores.numeroCasa) },
-                supportingText = { errores.numeroCasa?.let { Text(it) } }
-            )
-
-            val fechaTexto = formulario.fechaNacimiento?.let {
-                SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).apply {
-                    timeZone = TimeZone.getTimeZone("UTC")
-                }.format(Date(it))
-            } ?: "Seleccionar fecha"
-
-            OutlinedTextField(
-                value = fechaTexto,
-                onValueChange = {},
-                readOnly = true,
-                label = { Text("Fecha de nacimiento") },
-                modifier = Modifier.fillMaxWidth(),
-                isError = errores.fechaNacimiento != null,
-                trailingIcon = { IconoError(errores.fechaNacimiento) },
-                supportingText = { errores.fechaNacimiento?.let { Text(it) } }
-            )
-            TextButton(onClick = { mostrarDatePicker = true }) {
-                Text("Seleccionar fecha")
-            }
-
-            OutlinedTextField(
-                value = formulario.password,
-                onValueChange = { viewModel.actualizarPassword(it) },
-                label = { Text("Contraseña") },
-                singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                modifier = Modifier.fillMaxWidth(),
-                isError = errores.password != null,
-                trailingIcon = { IconoError(errores.password) },
-                supportingText = {
-                    if (errores.password != null) Text(errores.password!!) else Text("Mínimo 4 caracteres")
-                }
-            )
-
-            OutlinedTextField(
-                value = formulario.confirmarPassword,
-                onValueChange = { viewModel.actualizarConfirmarPassword(it) },
-                label = { Text("Confirmar contraseña") },
-                singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                modifier = Modifier.fillMaxWidth(),
-                isError = errores.confirmarPassword != null,
-                trailingIcon = { IconoError(errores.confirmarPassword) },
-                supportingText = { errores.confirmarPassword?.let { Text(it) } }
-            )
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(
-                    checked = formulario.aceptaReglamento,
-                    onCheckedChange = { viewModel.actualizarAceptaReglamento(it) }
-                )
-                Text("Acepto el reglamento de la junta de vecinos")
-            }
-            if (errores.aceptaReglamento != null) {
-                Text(
-                    text = errores.aceptaReglamento!!,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(start = 12.dp)
-                )
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text("Recibir avisos de mis reservas")
-                Switch(
-                    checked = formulario.recibirAvisos,
-                    onCheckedChange = { viewModel.actualizarRecibirAvisos(it) }
-                )
-            }
-
-            Button(
-                onClick = { viewModel.guardar(onExito = onRegistroExitoso) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp)
-            ) {
-                Text("Crear cuenta")
-            }
         }
     }
 
