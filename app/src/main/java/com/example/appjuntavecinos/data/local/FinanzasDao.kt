@@ -3,12 +3,9 @@ package com.example.appjuntavecinos.data.local
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import com.example.appjuntavecinos.data.model.GastoCategoria
 import com.example.appjuntavecinos.data.model.Informe
 import com.example.appjuntavecinos.data.model.Movimiento
-
-
-//Resultado de la consulta agrupada
-data class GastoCategoria(val categoria: String, val total: Int)
 
 @Dao
 interface FinanzasDao {

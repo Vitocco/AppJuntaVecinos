@@ -5,7 +5,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import com.example.appjuntavecinos.data.model.Usuario
 
-// Las consultas a la tabla (igual que NoteDao.kt del profe)
+
 @Dao
 interface UsuarioDao {
     @Insert

@@ -5,20 +5,13 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.appjuntavecinos.data.local.AppDatabase
 import com.example.appjuntavecinos.data.model.Reserva
+import com.example.appjuntavecinos.data.model.ReservaForm
 import com.example.appjuntavecinos.data.repository.ReservaRepository
 import com.example.appjuntavecinos.util.Fechas
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-
-data class ReservaForm(                 // = FormularioModel
-    val fecha: Long? = null,
-    val horaInicio: Int? = null,
-    val horaTermino: Int? = null,
-    val motivo: String = "",
-    val asistentes: String = ""         // String porque viene de un TextField
-)
 
 data class ReservaErrores(              // = FormularioErrores
     val fecha: String? = null,
@@ -30,8 +23,7 @@ data class ReservaErrores(              // = FormularioErrores
 
 class ReservaViewModel(application: Application) : AndroidViewModel(application) {
 
-    companion object { const val MAX_ASISTENTES = 60 }   // dato ficticio del mockup
-
+    companion object { const val MAX_ASISTENTES = 60 }
     private val repositorio =
         ReservaRepository(AppDatabase.getInstance(application).reservaDao())
 

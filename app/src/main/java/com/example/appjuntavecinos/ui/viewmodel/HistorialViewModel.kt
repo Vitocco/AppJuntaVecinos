@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.appjuntavecinos.data.local.AppDatabase
-import com.example.appjuntavecinos.data.local.GastoCategoria
+import com.example.appjuntavecinos.data.model.GastoCategoria
 import com.example.appjuntavecinos.data.model.Informe
 import com.example.appjuntavecinos.data.repository.FinanzasRepository
 import kotlinx.coroutines.flow.MutableStateFlow

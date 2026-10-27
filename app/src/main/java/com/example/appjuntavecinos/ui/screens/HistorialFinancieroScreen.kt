@@ -47,7 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.appjuntavecinos.ui.components.DosColumnas
-import com.example.appjuntavecinos.data.local.GastoCategoria
+import com.example.appjuntavecinos.data.model.GastoCategoria
 import com.example.appjuntavecinos.data.model.Informe
 import com.example.appjuntavecinos.util.Fechas
 import com.example.appjuntavecinos.ui.viewmodel.HistorialViewModel

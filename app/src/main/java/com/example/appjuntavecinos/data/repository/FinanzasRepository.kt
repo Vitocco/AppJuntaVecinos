@@ -2,17 +2,10 @@ package com.example.appjuntavecinos.data.repository
 
 
 import com.example.appjuntavecinos.data.local.FinanzasDao
-import com.example.appjuntavecinos.data.local.GastoCategoria
 import com.example.appjuntavecinos.data.model.Informe
 import com.example.appjuntavecinos.data.model.Movimiento
+import com.example.appjuntavecinos.data.model.ResumenMes
 import com.example.appjuntavecinos.util.Fechas
-
-data class ResumenMes(
-    val ingresos: Int,
-    val gastos: Int,
-    val saldo: Int,
-    val gastosPorCategoria: List<GastoCategoria>
-)
 
 class FinanzasRepository(private val dao: FinanzasDao) {
 
@@ -37,7 +30,7 @@ class FinanzasRepository(private val dao: FinanzasDao) {
 
     // Datos ficticios (el caso prohíbe usar información real). Solo se insertan si la tabla está vacía.
     suspend fun sembrarSiVacio() {
-        if (dao.contarMovimientos() > 0) return
+        if (dao.informes().isNotEmpty()) return
 
         val movimientos = listOf(
             // Septiembre 2026

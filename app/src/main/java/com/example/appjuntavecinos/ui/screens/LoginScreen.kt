@@ -35,9 +35,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -52,8 +54,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.appjuntavecinos.ui.components.DosColumnas
+import com.example.appjuntavecinos.ui.components.MensajeExito
 import com.example.appjuntavecinos.ui.theme.AppJuntaVecinosTheme
 import com.example.appjuntavecinos.ui.viewmodel.LoginViewModel
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,6 +74,15 @@ fun LoginScreen(
     val roles = listOf("Vecino", "Socio")
     var mostrarPassword by rememberSaveable { mutableStateOf(false) }
 
+    var rolExito by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(rolExito) {
+        rolExito?.let {
+            delay(1200)
+            onLoginClick(it)
+        }
+    }
+
     Surface(
         modifier = modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -83,6 +96,8 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            MensajeExito(visible = rolExito != null, texto = "¡Inicio de sesión exitoso!")
+
             DosColumnas(
                 espacio = 16.dp,
                 alineacion = Alignment.CenterHorizontally,
@@ -184,7 +199,7 @@ fun LoginScreen(
                     )
 
                     Button(
-                        onClick = { viewModel.iniciarSesion(onExito = onLoginClick) },
+                        onClick = { viewModel.iniciarSesion(onExito = { rolExito = it }) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(52.dp)

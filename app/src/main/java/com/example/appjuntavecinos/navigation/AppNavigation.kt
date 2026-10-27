@@ -14,7 +14,8 @@ import com.example.appjuntavecinos.ui.components.BottomBar
 import com.example.appjuntavecinos.ui.screens.HistorialFinancieroScreen
 import com.example.appjuntavecinos.ui.screens.InicioScreen
 import com.example.appjuntavecinos.ui.screens.LoginScreen
-import com.example.appjuntavecinos.ui.screens.RegisterScreen
+import com.example.appjuntavecinos.ui.screens.MisPagosScreen
+import com.example.appjuntavecinos.ui.screens.RegistroScreen
 import com.example.appjuntavecinos.ui.screens.RegistrarMovimientoScreen
 import com.example.appjuntavecinos.ui.screens.SocioHomeScreen
 import com.example.appjuntavecinos.ui.screens.SolicitarReservaScreen
@@ -37,10 +38,10 @@ fun AppNavigation() {
         composable(Rutas.LOGIN) {
             LoginScreen(
                 onLoginClick = { rol ->
-                    if (rol == "SOCIO") navController.navigate(Rutas.SOCIO_INICIO)
-                    else navController.navigate(Rutas.INICIO)
+                    val destino = if (rol == "SOCIO") Rutas.SOCIO_INICIO else Rutas.INICIO
+                    navController.navigate(destino) { popUpTo(Rutas.LOGIN) { inclusive = true } }
                 },
-                onRegisterClick = { navController.navigate(Rutas.REGISTER) }
+                onRegisterClick = { navController.navigate(Rutas.REGISTRO) }
             )
         }
 
@@ -51,8 +52,8 @@ fun AppNavigation() {
             )
         }
 
-        composable(Rutas.REGISTER) {
-            RegisterScreen(
+        composable(Rutas.REGISTRO) {
+            RegistroScreen(
                 onVolver = { navController.popBackStack() },
                 onRegistroExitoso = { navController.popBackStack() }
             )
@@ -78,11 +79,7 @@ fun AppNavigation() {
         }
 
         composable(Rutas.MIS_PAGOS) {
-            Scaffold(
-                bottomBar = { BottomBar(seleccionada = 2, onSeleccionar = { navController.navigate(pestanas[it]) }) }
-            ) { innerPadding ->
-                Text("Mis pagos: próximamente", modifier = Modifier.padding(innerPadding).padding(20.dp))
-            }
+            MisPagosScreen(onSeleccionar = { navController.navigate(pestanas[it]) })
         }
 
         composable(Rutas.HISTORIAL) {

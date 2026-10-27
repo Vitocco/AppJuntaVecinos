@@ -29,9 +29,11 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -42,8 +44,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.appjuntavecinos.ui.components.DosColumnas
+import com.example.appjuntavecinos.ui.components.MensajeExito
 import com.example.appjuntavecinos.ui.theme.AppJuntaVecinosTheme
 import com.example.appjuntavecinos.ui.viewmodel.RegistroViewModel
+import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -51,7 +55,7 @@ import java.util.TimeZone
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RegisterScreen(
+fun RegistroScreen(
     onVolver: () -> Unit = {},
     onRegistroExitoso: () -> Unit = {},
     viewModel: RegistroViewModel = viewModel()
@@ -59,6 +63,17 @@ fun RegisterScreen(
     val formulario by viewModel.formulario.collectAsState()
     val errores by viewModel.errores.collectAsState()
     var mostrarDatePicker by rememberSaveable { mutableStateOf(false) }
+
+    var registrado by remember { mutableStateOf(false) }
+    val scroll = rememberScrollState()
+
+    LaunchedEffect(registrado) {
+        if (registrado) {
+            scroll.animateScrollTo(0)   // sube para que se vea el cartel
+            delay(1500)
+            onRegistroExitoso()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -76,10 +91,12 @@ fun RegisterScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scroll)
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            MensajeExito(visible = registrado, texto = "¡Cuenta creada con éxito!")
+
             DosColumnas(
                 espacio = 8.dp,
                 izquierda = {
@@ -212,7 +229,7 @@ fun RegisterScreen(
                     }
 
                     Button(
-                        onClick = { viewModel.guardar(onExito = onRegistroExitoso) },
+                        onClick = { viewModel.guardar(onExito = { registrado = true }) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(52.dp)
@@ -253,5 +270,5 @@ fun IconoError(error: String?) {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun RegistroScreenPreview() {
-    AppJuntaVecinosTheme { RegisterScreen() }
+    AppJuntaVecinosTheme { RegistroScreen() }
 }

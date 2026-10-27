@@ -6,21 +6,13 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.appjuntavecinos.data.local.AppDatabase
 import com.example.appjuntavecinos.data.model.Movimiento
+import com.example.appjuntavecinos.data.model.MovimientoForm
 import com.example.appjuntavecinos.data.repository.FinanzasRepository
 import com.example.appjuntavecinos.util.Fechas
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-
-data class MovimientoForm(
-    val tipo: String = "GASTO",
-    val categoria: String? = null,
-    val monto: String = "",             // String porque viene de un TextField
-    val fecha: Long = Fechas.hoy(),
-    val detalle: String = "",
-    val comprobante: Uri? = null        // foto opcional
-)
 
 data class MovimientoErrores(
     val categoria: String? = null,
