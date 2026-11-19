@@ -1,96 +1,100 @@
 package com.example.appjuntavecinos.navigation
 
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.appjuntavecinos.ui.components.BottomBar
-import com.example.appjuntavecinos.ui.screens.HistorialFinancieroScreen
-import com.example.appjuntavecinos.ui.screens.InicioScreen
+import com.example.appjuntavecinos.data.session.SesionManager
+import com.example.appjuntavecinos.ui.components.EstadoCarga
+import com.example.appjuntavecinos.ui.components.FondoZaror
+import com.example.appjuntavecinos.ui.components.PedirPermisoRedLocal
 import com.example.appjuntavecinos.ui.screens.LoginScreen
-import com.example.appjuntavecinos.ui.screens.MisPagosScreen
 import com.example.appjuntavecinos.ui.screens.RegistroScreen
-import com.example.appjuntavecinos.ui.screens.RegistrarMovimientoScreen
-import com.example.appjuntavecinos.ui.screens.SocioHomeScreen
-import com.example.appjuntavecinos.ui.screens.SolicitarReservaScreen
-import com.example.appjuntavecinos.util.programarAviso
 
+/**
+ * Navegación principal: Login, Registro y un destino por rol.
+ * Cada rol tiene su propio Scaffold + grafo (VecinoNavegacion, DirectivaNavegacion, TesoreroNavegacion).
+ */
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-    val pestanas = listOf(Rutas.INICIO, Rutas.RESERVA, Rutas.MIS_PAGOS, Rutas.HISTORIAL)
+    val cargada by SesionManager.cargada.collectAsState()
+    val sesion by SesionManager.sesion.collectAsState()
 
-    // El "escenario": muestra la pantalla de la ruta actual.
-    // startDestination = la primera pantalla al abrir la app.
-    NavHost(
-        navController = navController,
-        startDestination = Rutas.LOGIN
+    // Android 17: pide el permiso de red local para poder llegar al backend
+    PedirPermisoRedLocal()
 
-    ) {
-        // Cada composable(ruta) { ... } = "cuando la ruta sea X, muestra esta pantalla".
+    // 1° Mientras se lee la sesión guardada en DataStore (una fracción de segundo)
+    if (!cargada) {
+        FondoZaror { EstadoCarga() }
+        return
+    }
+
+    // 2° Pantalla inicial: si ya había sesión, directo al grafo de su rol
+    val inicio = remember { sesion?.let { Rutas.inicioDe(it.rol) } ?: Rutas.LOGIN }
+
+    // 3° Si la sesión desaparece (Cerrar sesión o 401 = token vencido) se vuelve al login
+    //    borrando todo el historial, para que "atrás" no regrese a pantallas privadas.
+    LaunchedEffect(sesion) {
+        val rutaActual = navController.currentDestination?.route
+        if (sesion == null && rutaActual != null && rutaActual !in Rutas.publicas) {
+            navController.irLimpiando(Rutas.LOGIN)
+        }
+    }
+
+    NavHost(navController = navController, startDestination = inicio) {
 
         composable(Rutas.LOGIN) {
             LoginScreen(
-                onLoginClick = { rol ->
-                    val destino = if (rol == "SOCIO") Rutas.SOCIO_INICIO else Rutas.INICIO
-                    navController.navigate(destino) { popUpTo(Rutas.LOGIN) { inclusive = true } }
-                },
+                onLoginClick = { rol -> navController.irLimpiando(Rutas.inicioDe(rol)) },
                 onRegisterClick = { navController.navigate(Rutas.REGISTRO) }
-            )
-        }
-
-        composable(Rutas.SOCIO_INICIO) {
-            SocioHomeScreen(
-                onSeleccionar = { if (it == 2) navController.navigate(Rutas.MOVIMIENTO) },
-                onRegistrarMovimiento = { navController.navigate(Rutas.MOVIMIENTO) }
             )
         }
 
         composable(Rutas.REGISTRO) {
             RegistroScreen(
                 onVolver = { navController.popBackStack() },
-                onRegistroExitoso = { navController.popBackStack() }
+                // el registro deja la sesión iniciada como VECINO
+                onRegistroExitoso = { navController.irLimpiando(Rutas.VECINO) }
             )
         }
 
-        composable(Rutas.INICIO) {
-            InicioScreen(
-                onSeleccionar = { navController.navigate(pestanas[it]) },
-                onSolicitarArriendo = { navController.navigate(Rutas.RESERVA) }
-            )
-        }
+        // Un destino por rol. SoloParaRol impide entrar con otro rol.
+        composable(Rutas.VECINO) { SoloParaRol(Rutas.VECINO, sesion?.rol, navController) { VecinoNavegacion() } }
+        composable(Rutas.DIRECTIVA) { SoloParaRol(Rutas.DIRECTIVA, sesion?.rol, navController) { DirectivaNavegacion() } }
+        composable(Rutas.TESORERO) { SoloParaRol(Rutas.TESORERO, sesion?.rol, navController) { TesoreroNavegacion() } }
+    }
+}
 
-        composable(Rutas.RESERVA) {
-            val context = LocalContext.current
-            SolicitarReservaScreen(
-                onVolver = { navController.popBackStack() },
-                onSolicitudEnviada = {
-                    // Notificación a los 10 s, aunque la app esté cerrada
-                    programarAviso(context, "Solicitud recibida", "La directiva revisará tu reserva")
-                    navController.popBackStack()
-                }
-            )
+/**
+ * Guardia: muestra [contenido] solo si el rol de la sesión corresponde a [ruta].
+ * Si no (o no hay sesión), redirige al grafo correcto o al login.
+ */
+@Composable
+private fun SoloParaRol(
+    ruta: String,
+    rol: String?,
+    navController: NavHostController,
+    contenido: @Composable () -> Unit
+) {
+    if (rol != null && Rutas.inicioDe(rol) == ruta) {
+        contenido()
+    } else {
+        LaunchedEffect(rol) {
+            navController.irLimpiando(if (rol == null) Rutas.LOGIN else Rutas.inicioDe(rol))
         }
+    }
+}
 
-        composable(Rutas.MIS_PAGOS) {
-            MisPagosScreen(onSeleccionar = { navController.navigate(pestanas[it]) })
-        }
-
-        composable(Rutas.HISTORIAL) {
-            HistorialFinancieroScreen()
-        }
-
-        composable(Rutas.MOVIMIENTO) {
-            RegistrarMovimientoScreen(
-                onVolver = { navController.popBackStack() },
-                onMovimientoGuardado = { navController.popBackStack() }
-            )
-        }
+/** Navega a [ruta] borrando TODO el historial (al iniciar o cerrar sesión). */
+fun NavHostController.irLimpiando(ruta: String) {
+    navigate(ruta) {
+        popUpTo(graph.id) { inclusive = true }
+        launchSingleTop = true
     }
 }

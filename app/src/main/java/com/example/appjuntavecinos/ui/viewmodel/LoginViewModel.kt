@@ -1,13 +1,12 @@
 package com.example.appjuntavecinos.ui.viewmodel
 
 import android.util.Patterns
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.appjuntavecinos.data.local.AppDatabase
-import com.example.appjuntavecinos.util.Seguridad
-import com.example.appjuntavecinos.data.repository.UsuarioRepository
 import com.example.appjuntavecinos.data.model.LoginModel
+import com.example.appjuntavecinos.data.remote.Resultado
+import com.example.appjuntavecinos.data.remote.RetrofitClient
+import com.example.appjuntavecinos.data.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,13 +18,8 @@ data class LoginErrores(
     val password: String? = null
 )
 
-// AndroidViewModel: igual que EstadoViewModel del profe, para poder abrir la base de datos
-class LoginViewModel(application: Application) : AndroidViewModel(application) {
-    private val repositorio = UsuarioRepository(AppDatabase.getInstance(application).usuarioDao())
-
-    init {
-        viewModelScope.launch { repositorio.crearSocioDePrueba() }   // socio@zaror.cl / 1234
-    }
+class LoginViewModel : ViewModel() {
+    private val repositorio = AuthRepository(RetrofitClient.api)
 
     private val _formulario = MutableStateFlow(LoginModel())
     val formulario: StateFlow<LoginModel> = _formulario.asStateFlow()
@@ -33,16 +27,29 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     private val _errores = MutableStateFlow(LoginErrores())
     val errores: StateFlow<LoginErrores> = _errores.asStateFlow()
 
+    // true mientras espera la respuesta del backend (el botón muestra un spinner)
+    private val _cargando = MutableStateFlow(false)
+    val cargando: StateFlow<Boolean> = _cargando.asStateFlow()
+
+    // Mensaje que manda el backend (ej: "Email o contraseña incorrectos") o de conexión
+    private val _mensajeError = MutableStateFlow<String?>(null)
+    val mensajeError: StateFlow<String?> = _mensajeError.asStateFlow()
+
+    // Al escribir se limpia el error de ese campo y el mensaje general.
+    // Ojo: el teclado a veces re-envía el MISMO texto (al ocultarse); en ese caso no
+    // se borra nada, para que el mensaje del backend no desaparezca solo.
     fun actualizarEmail(valor: String) {
+        if (valor == _formulario.value.email) return
         _formulario.value = _formulario.value.copy(email = valor)
+        _errores.value = _errores.value.copy(email = null)
+        _mensajeError.value = null
     }
 
     fun actualizarPassword(valor: String) {
+        if (valor == _formulario.value.password) return
         _formulario.value = _formulario.value.copy(password = valor)
-    }
-
-    fun actualizarRol(valor: Int) {
-        _formulario.value = _formulario.value.copy(rol = valor)
+        _errores.value = _errores.value.copy(password = null)
+        _mensajeError.value = null
     }
 
     fun validarFormulario(): Boolean {
@@ -52,7 +59,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
         if (datos.email.isBlank()) {
             emailError = "El correo es obligatorio"
-        } else if (!Patterns.EMAIL_ADDRESS.matcher(datos.email).matches()) {
+        } else if (!Patterns.EMAIL_ADDRESS.matcher(datos.email.trim()).matches()) {
             emailError = "Formato inválido. Ej: nombre@correo.com"
         }
 
@@ -67,22 +74,20 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         return nuevosErrores == LoginErrores()
     }
 
-    // 1° valida el formato, 2° busca en Room, 3° compara el hash de la contraseña
+    // 1° valida el formato, 2° POST api/auth/login, 3° si responde OK la sesión
+    // ya quedó guardada (AuthRepository) y se avisa el ROL para navegar.
     fun iniciarSesion(onExito: (String) -> Unit) {
-        if (!validarFormulario()) return
+        if (_cargando.value || !validarFormulario()) return
         val datos = _formulario.value
 
         viewModelScope.launch {
-            val usuario = repositorio.buscarPorEmail(datos.email)
-            val rolElegido = if (datos.rol == 0) "VECINO" else "SOCIO"
-
-            if (usuario == null || usuario.passwordHash != Seguridad.sha256(datos.password)) {
-                _errores.value = LoginErrores(password = "Correo o contraseña incorrectos")
-            } else if (usuario.rol != rolElegido) {
-                _errores.value = LoginErrores(email = "Esta cuenta no es de tipo ${rolElegido.lowercase()}")
-            } else {
-                onExito(rolElegido)
+            _cargando.value = true
+            _mensajeError.value = null
+            when (val r = repositorio.login(datos.email, datos.password)) {
+                is Resultado.Exito -> onExito(r.datos.rol)
+                is Resultado.Error -> _mensajeError.value = r.mensaje
             }
+            _cargando.value = false
         }
     }
 }

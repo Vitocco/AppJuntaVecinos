@@ -16,14 +16,14 @@ import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import java.util.concurrent.TimeUnit
 
-// El "trabajador": Android lo ejecuta aunque la app esté cerrada
+// Android lo ejecuta aunque la app esté cerrada
 class AvisoWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
         val titulo = inputData.getString("titulo") ?: "Junta Zaror"
         val mensaje = inputData.getString("mensaje") ?: ""
 
-        // Canal de notificación (obligatorio desde Android 8)
+        // Canal de notificación
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val canal = NotificationChannel("avisos", "Avisos", NotificationManager.IMPORTANCE_DEFAULT)
             applicationContext.getSystemService(NotificationManager::class.java).createNotificationChannel(canal)
@@ -47,7 +47,7 @@ class AvisoWorker(context: Context, params: WorkerParameters) : CoroutineWorker(
     }
 }
 
-// Se llama desde cualquier parte: "muestra este aviso en X segundos"
+// Se llama desde cualquier parte
 fun programarAviso(context: Context, titulo: String, mensaje: String, segundos: Long = 10) {
     val tarea = OneTimeWorkRequestBuilder<AvisoWorker>()
         .setInitialDelay(segundos, TimeUnit.SECONDS)

@@ -21,8 +21,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.appjuntavecinos.ui.theme.VerdeOk
+import com.example.appjuntavecinos.ui.theme.VerdeOkFondo
 
-// Cartel verde que aparece con animación cuando visible = true
 @Composable
 fun MensajeExito(visible: Boolean, texto: String) {
     AnimatedVisibility(
@@ -31,13 +32,14 @@ fun MensajeExito(visible: Boolean, texto: String) {
         exit = fadeOut()
     ) {
         Card(
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+            shape = MaterialTheme.shapes.small,
+            colors = CardDefaults.cardColors(containerColor = VerdeOkFondo),
             modifier = Modifier.fillMaxWidth()
         ) {
             Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Filled.CheckCircle, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                Icon(Icons.Filled.CheckCircle, contentDescription = null, tint = VerdeOk)
                 Spacer(Modifier.width(12.dp))
-                Text(texto, fontWeight = FontWeight.Bold)
+                Text(texto, fontWeight = FontWeight.SemiBold, color = VerdeOk)
             }
         }
     }

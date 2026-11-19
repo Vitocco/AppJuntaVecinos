@@ -1,57 +1,38 @@
 package com.example.appjuntavecinos.data.repository
 
+import com.example.appjuntavecinos.data.remote.ApiService
+import com.example.appjuntavecinos.data.remote.Multipart
+import com.example.appjuntavecinos.data.remote.Resultado
+import com.example.appjuntavecinos.data.remote.dto.CategoriaDto
+import com.example.appjuntavecinos.data.remote.dto.MovimientoDto
+import com.example.appjuntavecinos.data.remote.dto.MovimientoRequest
+import com.example.appjuntavecinos.data.remote.dto.ResumenDto
+import com.example.appjuntavecinos.data.remote.llamarApi
 
-import com.example.appjuntavecinos.data.local.FinanzasDao
-import com.example.appjuntavecinos.data.model.Informe
-import com.example.appjuntavecinos.data.model.Movimiento
-import com.example.appjuntavecinos.data.model.ResumenMes
-import com.example.appjuntavecinos.util.Fechas
+// Resumen del mes, categorías y movimientos (ingresos / gastos).
+class FinanzasRepository(private val api: ApiService) {
 
-class FinanzasRepository(private val dao: FinanzasDao) {
+    suspend fun resumen(anio: Int, mes: Int): Resultado<ResumenDto> =
+        llamarApi { api.resumen(anio, mes) }
 
-    companion object {
-        const val SALDO_APERTURA = 331_300   // monto ficticio con el que parte la caja
-    }
+    suspend fun categorias(): Resultado<List<CategoriaDto>> =
+        llamarApi { api.categorias() }
 
-    suspend fun resumen(anio: Int, mes: Int): ResumenMes {
-        val desde = Fechas.fecha(anio, mes, 1)
-        val hasta = if (mes == 12) Fechas.fecha(anio + 1, 1, 1) else Fechas.fecha(anio, mes + 1, 1)
-        return ResumenMes(
-            ingresos = dao.totalDelMes("INGRESO", desde, hasta),
-            gastos = dao.totalDelMes("GASTO", desde, hasta),
-            saldo = SALDO_APERTURA + dao.netoHasta(hasta),   // acumulado hasta fin de ese mes
-            gastosPorCategoria = dao.gastosPorCategoria(desde, hasta)
-        )
-    }
+    suspend fun movimientos(anio: Int, mes: Int): Resultado<List<MovimientoDto>> =
+        llamarApi { api.movimientos(anio, mes) }
 
-    suspend fun informes(): List<Informe> = dao.informes()
+    /** Crea el movimiento. [comprobanteJpg] = bytes de la foto (opcional). */
+    suspend fun crearMovimiento(datos: MovimientoRequest, comprobanteJpg: ByteArray?): Resultado<MovimientoDto> =
+        llamarApi {
+            api.crearMovimiento(
+                datos = Multipart.datosJson(datos),
+                archivo = comprobanteJpg?.let { Multipart.archivoJpg(it) }
+            )
+        }
 
-    suspend fun guardarMovimiento(movimiento: Movimiento) = dao.insertarMovimiento(movimiento)
+    suspend fun editarMovimiento(id: Long, datos: MovimientoRequest): Resultado<MovimientoDto> =
+        llamarApi { api.editarMovimiento(id, datos) }
 
-    // Datos ficticios (el caso prohíbe usar información real). Solo se insertan si la tabla está vacía.
-    suspend fun sembrarSiVacio() {
-        if (dao.informes().isNotEmpty()) return
-
-        val movimientos = listOf(
-            // Septiembre 2026
-            Movimiento(fecha = Fechas.fecha(2026, 9, 6),  tipo = "INGRESO", categoria = "Arriendo", monto = 35_000),
-            Movimiento(fecha = Fechas.fecha(2026, 9, 20), tipo = "INGRESO", categoria = "Arriendo", monto = 35_000),
-            Movimiento(fecha = Fechas.fecha(2026, 9, 10), tipo = "GASTO", categoria = "Luz",  monto = 19_800),
-            Movimiento(fecha = Fechas.fecha(2026, 9, 12), tipo = "GASTO", categoria = "Gas",  monto = 14_000),
-            Movimiento(fecha = Fechas.fecha(2026, 9, 14), tipo = "GASTO", categoria = "Agua", monto = 11_500),
-            // Octubre 2026
-            Movimiento(fecha = Fechas.fecha(2026, 10, 4),  tipo = "INGRESO", categoria = "Arriendo", monto = 35_000),
-            Movimiento(fecha = Fechas.fecha(2026, 10, 11), tipo = "INGRESO", categoria = "Arriendo", monto = 35_000),
-            Movimiento(fecha = Fechas.fecha(2026, 10, 18), tipo = "INGRESO", categoria = "Arriendo", monto = 35_000),
-            Movimiento(fecha = Fechas.fecha(2026, 10, 8),  tipo = "GASTO", categoria = "Luz",  monto = 21_400),
-            Movimiento(fecha = Fechas.fecha(2026, 10, 9),  tipo = "GASTO", categoria = "Gas",  monto = 15_000),
-            Movimiento(fecha = Fechas.fecha(2026, 10, 10), tipo = "GASTO", categoria = "Agua", monto = 12_300)
-        )
-        movimientos.forEach { dao.insertarMovimiento(it) }
-
-        dao.insertarInforme(Informe(titulo = "Informe septiembre 2026", fechaPublicacion = Fechas.fecha(2026, 10, 1)))
-        dao.insertarInforme(Informe(titulo = "Informe agosto 2026", fechaPublicacion = Fechas.fecha(2026, 9, 2)))
-        dao.insertarInforme(Informe(titulo = "Rendición 1er semestre 2026", fechaPublicacion = Fechas.fecha(2026, 7, 15), esRendicion = true))
-    }
-
+    suspend fun anularMovimiento(id: Long): Resultado<MovimientoDto> =
+        llamarApi { api.anularMovimiento(id) }
 }

@@ -1,35 +1,21 @@
 package com.example.appjuntavecinos.data.repository
 
-import com.example.appjuntavecinos.data.local.UsuarioDao
-import com.example.appjuntavecinos.data.model.Usuario
-import com.example.appjuntavecinos.util.Seguridad
+import com.example.appjuntavecinos.data.remote.ApiService
+import com.example.appjuntavecinos.data.remote.Resultado
+import com.example.appjuntavecinos.data.remote.dto.ActualizarUsuarioRequest
+import com.example.appjuntavecinos.data.remote.dto.UsuarioDto
+import com.example.appjuntavecinos.data.remote.llamarApi
+import com.example.appjuntavecinos.data.session.SesionManager
 
-// Intermediario entre el ViewModel y el DAO (igual que NoteRepository.kt del profe)
-class UsuarioRepository(private val dao: UsuarioDao) {
+// Perfil del usuario logueado (GET / PUT api/usuarios/me)
+class UsuarioRepository(private val api: ApiService) {
 
-    suspend fun registrar(usuario: Usuario) {
-        dao.insertar(usuario)
-    }
+    suspend fun obtenerPerfil(): Resultado<UsuarioDto> = llamarApi { api.miPerfil() }
 
-    suspend fun buscarPorEmail(email: String): Usuario? {
-        return dao.buscarPorEmail(email.trim())
-    }
-
-    // Socio de prueba precargado: socio@zaror.cl / 1234
-    suspend fun crearSocioDePrueba() {
-        if (dao.buscarPorEmail("socio@zaror.cl") == null) {
-            dao.insertar(
-                Usuario(
-                    nombre = "Socio de prueba",
-                    email = "socio@zaror.cl",
-                    telefono = "900000000",
-                    numeroCasa = 1,
-                    fechaNacimiento = 0L,
-                    passwordHash = Seguridad.sha256("1234"),
-                    rol = "SOCIO",
-                    recibirAvisos = true
-                )
-            )
-        }
+    suspend fun actualizarPerfil(datos: ActualizarUsuarioRequest): Resultado<UsuarioDto> {
+        val resultado = llamarApi { api.actualizarPerfil(datos) }
+        // El saludo "Hola, <nombre>" sale de la sesión: se actualiza también ahí
+        if (resultado is Resultado.Exito) SesionManager.actualizarNombre(resultado.datos.nombre)
+        return resultado
     }
 }

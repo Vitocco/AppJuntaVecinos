@@ -13,17 +13,15 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-// ¿El teléfono está parado (portrait)?
 @Composable
 fun esVertical(): Boolean =
     LocalConfiguration.current.orientation == Configuration.ORIENTATION_PORTRAIT
 
-// ¿El teléfono está acostado (landscape)?
+
 @Composable
 fun esHorizontal(): Boolean =
     LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-// Dibuja un contenido en vertical (portrait) y otro en horizontal (landscape)
 @Composable
 fun SegunOrientacion(
     vertical: @Composable () -> Unit,
@@ -32,15 +30,12 @@ fun SegunOrientacion(
     if (esHorizontal()) horizontal() else vertical()
 }
 
-// Muestra el contenido en dos partes:
-// - Portrait: una debajo de la otra (igual que antes)
-// - Landscape: lado a lado, cada una en su propia columna
 @Composable
 fun DosColumnas(
     izquierda: @Composable ColumnScope.() -> Unit,
     derecha: @Composable ColumnScope.() -> Unit,
-    espacio: Dp = 16.dp,                                   // separación entre elementos
-    alineacion: Alignment.Horizontal = Alignment.Start     // alineación horizontal del contenido
+    espacio: Dp = 16.dp,
+    alineacion: Alignment.Horizontal = Alignment.Start
 ) {
     if (esVertical()) {
         Column(

@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <style name="Theme.AppJuntaVecinos" parent="android:Theme.Material.Light.NoActionBar" />
+    <!-- Tema de la ventana (antes de que Compose dibuje). Es oscuro y con fondo Carbón
+         para que al abrir la app no aparezca un destello blanco. -->
+    <style name="Theme.AppJuntaVecinos" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/carbon</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/barra_nav</item>
+    </style>
 </resources>

@@ -4,21 +4,18 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.appjuntavecinos.data.model.Informe
-import com.example.appjuntavecinos.data.model.Movimiento
-import com.example.appjuntavecinos.data.model.Reserva
-import com.example.appjuntavecinos.data.model.Usuario
 
+// Room se usa SOLO como caché del backend: sedes y "mis reservas".
+// Versión 7: se quitaron las tablas de las pantallas antiguas (reservas, movimientos,
+// informes locales). La fuente oficial de todos los datos es el backend.
 @Database(
-    entities = [Reserva::class, Movimiento::class, Informe::class, Usuario::class],
-    version = 5,
+    entities = [SedeEntity::class, ReservaEntity::class],
+    version = 7,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun reservaDao(): ReservaDao
-    abstract fun finanzasDao(): FinanzasDao
-    abstract fun usuarioDao(): UsuarioDao
-
+    abstract fun sedeDao(): SedeDao
+    abstract fun reservaCacheDao(): ReservaCacheDao
 
     companion object {
         @Volatile
@@ -27,7 +24,10 @@ abstract class AppDatabase : RoomDatabase() {
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
                     context.applicationContext, AppDatabase::class.java, "junta_database"
-                ).fallbackToDestructiveMigration(true)
+                )
+                    // Desarrollo: al subir la versión se borra y recrea la base.
+                    // No se pierde nada importante: es solo caché del backend.
+                    .fallbackToDestructiveMigration(true)
                     .build().also { INSTANCE = it }
             }
     }

@@ -33,9 +33,13 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        // Permite usar java.time (LocalDate, YearMonth) en Android 7 (minSdk 24)
+        isCoreLibraryDesugaringEnabled = true
     }
     buildFeatures {
         compose = true
+        // Genera BuildConfig.DEBUG: lo usamos para activar el log de red SOLO en debug
+        buildConfig = true
     }
 }
 
@@ -67,6 +71,28 @@ dependencies {
     // Trae la función viewModel() para usar ViewModels dentro de un @Composable.
     // El ViewModel guarda el estado de la pantalla y sobrevive a rotaciones del celular.
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0")
+
+    // ---- Conexión con el backend (REST) ----
+    // Retrofit: convierte las rutas de la API en funciones de Kotlin (ApiService)
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    // Gson: transforma JSON <-> data classes (DTOs)
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    // OkHttp: el cliente HTTP real; el interceptor agrega el token a cada petición
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    // Muestra en Logcat las peticiones (solo en debug y sin imprimir el token)
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+    // DataStore: guarda la sesión (token, nombre, rol) aunque se cierre la app
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+
+    // Recargar datos cada vez que una pantalla vuelve a verse (LifecycleResumeEffect)
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.11.0")
+
+    // Custom Tabs: abre el formulario de Webpay dentro de la app (Etapa 4)
+    implementation("androidx.browser:browser:1.8.0")
+
+    // java.time en versiones antiguas de Android
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
 
     // WorkManager → ejecuta la notificación aunque la app esté cerrada
     implementation("androidx.work:work-runtime-ktx:2.10.0")

@@ -2,6 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Para conectarse al backend y descargar las fotos de las sedes -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Android 17 (API 37): para conectarse a una IP de la red local / privada
+         (10.0.2.2 = el PC visto desde el emulador) la app debe tener este permiso.
+         Es "peligroso": además de declararlo se pide al usuario (PermisoRedLocal.kt). -->
+    <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
@@ -9,7 +15,11 @@
         android:name="android.hardware.camera"
         android:required="false" />
 
+    <!-- usesCleartextTraffic="true": permite HTTP sin cifrar hacia http://10.0.2.2:8080.
+         SOLO PARA DESARROLLO: en producción el backend debe usar HTTPS y esto se quita. -->
     <application
+        android:name=".JuntaZarorApp"
+        android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -33,6 +43,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:launchMode="singleTask"
             android:label="@string/app_name"
             android:theme="@style/Theme.AppJuntaVecinos"
             android:windowSoftInputMode="adjustResize">
@@ -40,6 +51,16 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- Vuelta desde Webpay: el backend redirige a zaror://pago?estado=ok|error
+                 y Android abre la app aquí. singleTask = reutiliza esta misma pantalla
+                 (y cierra el Custom Tab que quedó encima). -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="zaror" android:host="pago" />
             </intent-filter>
         </activity>
     </application>

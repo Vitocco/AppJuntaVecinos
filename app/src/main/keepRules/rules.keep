@@ -10,3 +10,7 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+
+# Gson llena los DTOs por reflexión usando el nombre de cada campo.
+# Si R8 los renombrara (build release), el JSON del backend no calzaría.
+-keep class com.example.appjuntavecinos.data.remote.dto.** { *; }

@@ -1,57 +1,67 @@
 package com.example.appjuntavecinos.ui.theme
 
-import android.app.Activity
-import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.unit.dp
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+// Tema oscuro ÚNICO: la app se ve igual aunque el celular esté en modo claro.
+// Mapeamos nuestra paleta a los "roles" de Material 3 para que los componentes
+// estándar (DatePicker, diálogos, Snackbar) también queden con los colores de la junta.
+private val EsquemaZaror = darkColorScheme(
+    primary = Terracota,
+    onPrimary = Crema,
+    primaryContainer = AmbarFondo,
+    onPrimaryContainer = TerracotaSuave,
+    secondary = Crema,
+    onSecondary = Carbon,
+    secondaryContainer = CarbonCampoOn,
+    onSecondaryContainer = Crema,
+    tertiary = VerdeOk,
+    onTertiary = Carbon,
+    background = Carbon,
+    onBackground = Crema,
+    surface = Carbon,
+    onSurface = Crema,
+    surfaceVariant = CarbonCampo,
+    onSurfaceVariant = GrisCalido,
+    surfaceContainerLowest = Carbon,
+    surfaceContainerLow = CarbonCampo,
+    surfaceContainer = CarbonCampo,
+    surfaceContainerHigh = CarbonCampoOn,
+    surfaceContainerHighest = CarbonIcono,
+    inverseSurface = Crema,
+    inverseOnSurface = Carbon,
+    outline = CarbonIcono,
+    outlineVariant = CarbonCampoOn,
+    error = RojoError,
+    onError = Crema,
+    errorContainer = RojoErrorFondo,
+    onErrorContainer = RojoError
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = VerdeJunta,
-    onPrimary = Color.White,
-    primaryContainer = VerdeClaro,
-    onPrimaryContainer = VerdeJunta,
-    secondaryContainer = VerdeClaro,
-    onSecondaryContainer = VerdeJunta,
-    background = FondoApp,
-    surface = FondoApp,
-    onBackground = TextoPrincipal,
-    onSurface = TextoPrincipal,
-    onSurfaceVariant = TextoSecundario,
-    error = RojoError
+// Formas del diseño: filas 18dp, campos 20dp, tarjetas 24dp
+val FormasZaror = Shapes(
+    extraSmall = RoundedCornerShape(10.dp),
+    small = RoundedCornerShape(18.dp),   // filas
+    medium = RoundedCornerShape(20.dp),  // campos de texto
+    large = RoundedCornerShape(24.dp),   // tarjetas
+    extraLarge = RoundedCornerShape(28.dp)
 )
 
 @Composable
-fun AppJuntaVecinosTheme(
-    darkTheme: Boolean = false,
-    dynamicColor: Boolean = false,
-    content: @Composable () -> Unit
-) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
-
+fun AppJuntaVecinosTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = EsquemaZaror,
         typography = Typography,
-        content = content
-    )
+        shapes = FormasZaror
+    ) {
+        // Color por defecto de TODO texto e ícono que no indique uno (fuera de un Surface
+        // sería negro). Así ningún texto queda invisible sobre el fondo carbón.
+        CompositionLocalProvider(LocalContentColor provides Crema, content = content)
+    }
 }
