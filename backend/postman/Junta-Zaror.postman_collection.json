@@ -1,0 +1,399 @@
+{
+  "info": {
+    "name": "Junta Zaror - Backend",
+    "description": "Todas las requests van por el gateway ({{baseUrl}} = http://localhost:8080/api).\n\n1) Ejecuta primero la carpeta **0. Login** (guarda los tokens en variables de la colección).\n2) Luego cualquier request. Los multipart (movimientos y pagos) piden elegir un archivo JPG/PNG en el campo 'archivo'.\n\nUsuarios de prueba (password 1234): directiva@zaror.cl, tesorero@zaror.cl, camila@zaror.cl, luis@zaror.cl",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080/api" },
+    { "key": "tokenVecino", "value": "" },
+    { "key": "tokenVecino2", "value": "" },
+    { "key": "tokenDirectiva", "value": "" },
+    { "key": "tokenTesorero", "value": "" },
+    { "key": "reservaId", "value": "3" },
+    { "key": "movimientoId", "value": "9" },
+    { "key": "informeId", "value": "1" },
+    { "key": "webpayToken", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "0. Login (ejecutar primero)",
+      "item": [
+        {
+          "name": "Login VECINO (camila) -> tokenVecino",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200 OK', () => pm.response.to.have.status(200));",
+            "pm.collectionVariables.set('tokenVecino', pm.response.json().token);"
+          ] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"camila@zaror.cl\",\n  \"password\": \"1234\"\n}" },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        },
+        {
+          "name": "Login VECINO 2 (luis) -> tokenVecino2",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200 OK', () => pm.response.to.have.status(200));",
+            "pm.collectionVariables.set('tokenVecino2', pm.response.json().token);"
+          ] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"luis@zaror.cl\",\n  \"password\": \"1234\"\n}" },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        },
+        {
+          "name": "Login DIRECTIVA -> tokenDirectiva",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200 OK', () => pm.response.to.have.status(200));",
+            "pm.collectionVariables.set('tokenDirectiva', pm.response.json().token);"
+          ] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"directiva@zaror.cl\",\n  \"password\": \"1234\"\n}" },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        },
+        {
+          "name": "Login TESORERO -> tokenTesorero",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('200 OK', () => pm.response.to.have.status(200));",
+            "pm.collectionVariables.set('tokenTesorero', pm.response.json().token);"
+          ] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"tesorero@zaror.cl\",\n  \"password\": \"1234\"\n}" },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. Auth",
+      "item": [
+        {
+          "name": "POST /auth/register (público, crea VECINO)",
+          "event": [{ "listen": "prerequest", "script": { "type": "text/javascript", "exec": [
+            "// email único en cada ejecución para no chocar con el 409",
+            "pm.collectionVariables.set('emailNuevo', 'vecino.' + Date.now() + '@zaror.cl');"
+          ] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"nombre\": \"Ana Torres\",\n  \"email\": \"{{emailNuevo}}\",\n  \"telefono\": \"+56955555555\",\n  \"numeroCasa\": \"30\",\n  \"fechaNacimiento\": \"1990-04-12\",\n  \"password\": \"1234\",\n  \"recibirAvisos\": true\n}" },
+            "url": "{{baseUrl}}/auth/register"
+          }
+        },
+        {
+          "name": "POST /auth/login (password incorrecta -> 401)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"camila@zaror.cl\",\n  \"password\": \"mala\"\n}" },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Usuarios",
+      "item": [
+        {
+          "name": "GET /usuarios/me",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{tokenVecino}}", "type": "string" }] },
+            "method": "GET",
+            "url": "{{baseUrl}}/usuarios/me"
+          }
+        },
+        {
+          "name": "PUT /usuarios/me",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{tokenVecino}}", "type": "string" }] },
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"nombre\": \"Camila Rojas\",\n  \"telefono\": \"+56933333333\",\n  \"numeroCasa\": \"45\",\n  \"recibirAvisos\": true\n}" },
+            "url": "{{baseUrl}}/usuarios/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Sedes",
+      "item": [
+        {
+          "name": "GET /sedes",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{tokenVecino}}", "type": "string" }] },
+            "method": "GET",
+            "url": "{{baseUrl}}/sedes"
+          }
+        },
+        {
+          "name": "GET /sedes/{id}/disponibilidad",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{tokenVecino}}", "type": "string" }] },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/sedes/1/disponibilidad?anio=2026&mes=11", "host": ["{{baseUrl}}"], "path": ["sedes", "1", "disponibilidad"], "query": [{ "key": "anio", "value": "2026" }, { "key": "mes", "value": "11" }] }
+          }
+        },
+        {
+          "name": "GET /sedes/fotos/{archivo} (público, sin token)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": "{{baseUrl}}/sedes/fotos/salon-1.jpg"
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Reservas",
+      "item": [
+        {
+          "name": "POST /reservas (vecino 2 -> guarda reservaId)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "if (pm.response.code === 201) pm.collectionVariables.set('reservaId', pm.response.json().id);"
+          ] } }],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{tokenVecino2}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"sedeId\": 2,\n  \"fecha\": \"2026-12-12\",\n  \"horaInicio\": \"10:00\",\n  \"horaFin\": \"13:00\",\n  \"motivo\": \"Taller de repostería\",\n  \"asistentes\": 10\n}" },
+            "url": "{{baseUrl}}/reservas"
+          }
+        },
+        {
+          "name": "POST /reservas (tope con aprobada -> 409)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{tokenVecino2}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"sedeId\": 1,\n  \"fecha\": \"2026-11-28\",\n  \"horaInicio\": \"16:00\",\n  \"horaFin\": \"18:00\",\n  \"motivo\": \"Prueba de tope\",\n  \"asistentes\": 10\n}" },
+            "url": "{{baseUrl}}/reservas"
+          }
+        },
+        {
+          "name": "GET /reservas/mias",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{tokenVecino}}", "type": "string" }] },
+            "method": "GET",
+            "url": "{{baseUrl}}/reservas/mias"
+          }
+        },
+        {
+          "name": "GET /reservas?estado= (DIRECTIVA/TESORERO)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{tokenDirectiva}}", "type": "string" }] },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/reservas?estado=PENDIENTE", "host": ["{{baseUrl}}"], "path": ["reservas"], "query": [{ "key": "estado", "value": "PENDIENTE", "description": "Opcional: PENDIENTE | APROBADA | RECHAZADA | CANCELADA. Sin él = todas" }] }
+          }
+        },
+        {
+          "name": "PUT /reservas/{id}/estado (DIRECTIVA)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{tokenDirectiva}}", "type": "string" }] },
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"estado\": \"APROBADA\",\n  \"observacion\": \"Aprobada, dejar el espacio limpio\"\n}" },
+            "url": "{{baseUrl}}/reservas/{{reservaId}}/estado"
+          }
+        },
+        {
+          "name": "DELETE /reservas/{id} (dueño -> CANCELADA)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{tokenVecino2}}", "type": "string" }] },
+            "method": "DELETE",
+            "url": "{{baseUrl}}/reservas/{{reservaId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Finanzas y movimientos",
+      "item": [
+        {
+          "name": "GET /finanzas/resumen (cualquier rol)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{tokenVecino}}", "type": "string" }] },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/finanzas/resumen?anio=2026&mes=11", "host": ["{{baseUrl}}"], "path": ["finanzas", "resumen"], "query": [{ "key": "anio", "value": "2026" }, { "key": "mes", "value": "11" }] }
+          }
+        },
+        {
+          "name": "GET /categorias (TESORERO)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{tokenTesorero}}", "type": "string" }] },
+            "method": "GET",
+            "url": "{{baseUrl}}/categorias"
+          }
+        },
+        {
+          "name": "GET /movimientos (DIRECTIVA/TESORERO)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{tokenDirectiva}}", "type": "string" }] },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/movimientos?anio=2026&mes=11", "host": ["{{baseUrl}}"], "path": ["movimientos"], "query": [{ "key": "anio", "value": "2026" }, { "key": "mes", "value": "11" }] }
+          }
+        },
+        {
+          "name": "POST /movimientos multipart (TESORERO -> guarda movimientoId)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "if (pm.response.code === 201) pm.collectionVariables.set('movimientoId', pm.response.json().id);"
+          ] } }],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{tokenTesorero}}", "type": "string" }] },
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "datos", "type": "text", "contentType": "application/json", "value": "{\"tipo\":\"GASTO\",\"categoriaId\":9,\"descripcion\":\"Ampolletas para el salón\",\"monto\":12990,\"fechaMovimiento\":\"2026-11-16\"}" },
+                { "key": "archivo", "type": "file", "src": [], "description": "Opcional: foto de la boleta (JPG/PNG, máx. 5 MB)" }
+              ]
+            },
+            "url": "{{baseUrl}}/movimientos"
+          }
+        },
+        {
+          "name": "PUT /movimientos/{id} (TESORERO)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{tokenTesorero}}", "type": "string" }] },
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"tipo\": \"GASTO\",\n  \"categoriaId\": 9,\n  \"descripcion\": \"Ampolletas LED para el salón\",\n  \"monto\": 13990,\n  \"fechaMovimiento\": \"2026-11-16\"\n}" },
+            "url": "{{baseUrl}}/movimientos/{{movimientoId}}"
+          }
+        },
+        {
+          "name": "GET /movimientos/{id}/comprobante (imagen)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{tokenDirectiva}}", "type": "string" }] },
+            "method": "GET",
+            "url": "{{baseUrl}}/movimientos/{{movimientoId}}/comprobante"
+          }
+        },
+        {
+          "name": "DELETE /movimientos/{id} (TESORERO -> ANULADO)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{tokenTesorero}}", "type": "string" }] },
+            "method": "DELETE",
+            "url": "{{baseUrl}}/movimientos/{{movimientoId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Pagos",
+      "item": [
+        {
+          "name": "GET /pagos (DIRECTIVA/TESORERO)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{tokenTesorero}}", "type": "string" }] },
+            "method": "GET",
+            "url": "{{baseUrl}}/pagos"
+          }
+        },
+        {
+          "name": "POST /pagos multipart (TESORERO, archivo OBLIGATORIO)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{tokenTesorero}}", "type": "string" }] },
+            "method": "POST",
+            "description": "La reserva debe estar APROBADA y no pagada (ej.: apruebe antes la reserva 3 con la directiva).",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "datos", "type": "text", "contentType": "application/json", "value": "{\"reservaId\":3,\"monto\":25000,\"medio\":\"TRANSFERENCIA\",\"fechaPago\":\"2026-11-18\",\"referencia\":\"TRF-998877\"}" },
+                { "key": "archivo", "type": "file", "src": [], "description": "Obligatorio: foto del comprobante (JPG/PNG, máx. 5 MB)" }
+              ]
+            },
+            "url": "{{baseUrl}}/pagos"
+          }
+        },
+        {
+          "name": "POST /pagos/webpay/iniciar (VECINO dueño)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "if (pm.response.code === 200) {",
+            "  const r = pm.response.json();",
+            "  pm.collectionVariables.set('webpayToken', r.token);",
+            "  console.log('Abrir en el navegador: ' + r.url + '?token_ws=' + r.token);",
+            "}"
+          ] } }],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{tokenVecino}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "description": "Devuelve {url, token}. Abre url?token_ws=token en el navegador (la URL completa queda en la consola de Postman).",
+            "body": { "mode": "raw", "raw": "{\n  \"reservaId\": 2\n}" },
+            "url": "{{baseUrl}}/pagos/webpay/iniciar"
+          }
+        },
+        {
+          "name": "GET /pagos/webpay/retorno (público; simula 'anular' en Webpay)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "description": "Normalmente lo llama el navegador al volver de Transbank. Con TBK_TOKEN se marca el pago como RECHAZADO.",
+            "url": { "raw": "{{baseUrl}}/pagos/webpay/retorno?TBK_TOKEN={{webpayToken}}", "host": ["{{baseUrl}}"], "path": ["pagos", "webpay", "retorno"], "query": [{ "key": "TBK_TOKEN", "value": "{{webpayToken}}" }] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Informes",
+      "item": [
+        {
+          "name": "GET /informes (VECINO solo ve publicados)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{tokenVecino}}", "type": "string" }] },
+            "method": "GET",
+            "url": "{{baseUrl}}/informes"
+          }
+        },
+        {
+          "name": "GET /informes/{id} (con totales)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{tokenVecino}}", "type": "string" }] },
+            "method": "GET",
+            "url": "{{baseUrl}}/informes/{{informeId}}"
+          }
+        },
+        {
+          "name": "POST /informes (TESORERO)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{tokenTesorero}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"titulo\": \"Rendición noviembre\",\n  \"periodoInicio\": \"2026-11-01\",\n  \"periodoFin\": \"2026-11-30\",\n  \"observacion\": \"Borrador para revisión de la directiva\",\n  \"publicado\": false\n}" },
+            "url": "{{baseUrl}}/informes"
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Seguridad (casos de error esperados)",
+      "item": [
+        {
+          "name": "Sin token -> 401",
+          "request": { "auth": { "type": "noauth" }, "method": "GET", "url": "{{baseUrl}}/usuarios/me" }
+        },
+        {
+          "name": "Rol sin permiso (vecino lista reservas) -> 403",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{tokenVecino}}", "type": "string" }] },
+            "method": "GET",
+            "url": "{{baseUrl}}/reservas"
+          }
+        },
+        {
+          "name": "Ruta /interno desde afuera -> 403",
+          "request": { "auth": { "type": "noauth" }, "method": "GET", "url": "{{baseUrl}}/usuarios/interno/1" }
+        }
+      ]
+    }
+  ]
+}

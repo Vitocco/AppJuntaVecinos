@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: ms-gateway
+  cloud:
+    gateway:
+      server:
+        webflux:
+          # lb://<nombre-en-Eureka> balancea entre las instancias registradas.
+          # StripPrefix=1 quita "/api": /api/auth/login -> /auth/login en ms-auth
+          routes:
+            - id: ms-auth
+              uri: lb://ms-auth
+              predicates:
+                - Path=/api/auth/**
+              filters:
+                - StripPrefix=1
+            - id: ms-usuario
+              uri: lb://ms-usuario
+              predicates:
+                - Path=/api/usuarios/**
+              filters:
+                - StripPrefix=1
+            - id: ms-reserva
+              uri: lb://ms-reserva
+              predicates:
+                - Path=/api/sedes/**,/api/reservas/**
+              filters:
+                - StripPrefix=1
+            - id: ms-finanza
+              uri: lb://ms-finanza
+              predicates:
+                - Path=/api/finanzas/**,/api/categorias/**,/api/movimientos/**,/api/pagos/**,/api/informes/**
+              filters:
+                - StripPrefix=1
+
+server:
+  port: 8080
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
+  instance:
+    prefer-ip-address: true
+
+# Secreto: SIEMPRE desde variable de entorno (.env), sin valor por defecto
+jwt:
+  secret: ${JWT_SECRET}

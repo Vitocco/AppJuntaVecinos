@@ -1,0 +1,117 @@
+# Junta Zaror - backend completo en Docker
+#   Todo:                 docker compose up -d --build
+#   Solo MySQL (para IDE): docker compose up -d mysql
+# Los secretos salen SOLO del archivo .env (copia .env.example como .env y completa los valores).
+# ${VAR:?mensaje} hace que docker compose se detenga con ese mensaje si la variable falta.
+
+# Variables comunes a los microservicios de negocio
+x-ms-comun: &ms-comun
+  EUREKA_URL: http://ms-eureka:8761/eureka     # dentro de Docker se encuentran por nombre
+  DB_HOST: mysql
+  DB_USER: ${DB_USER:?Falta DB_USER en .env}
+  DB_PASSWORD: ${DB_PASSWORD:?Falta DB_PASSWORD en .env}
+  JWT_SECRET: ${JWT_SECRET:?Falta JWT_SECRET en .env}
+  INTERNAL_KEY: ${INTERNAL_KEY:?Falta INTERNAL_KEY en .env}
+  TZ: America/Santiago                          # para que "hoy" sea la fecha de Chile
+
+# Arrancan solo cuando MySQL y Eureka están sanos
+x-depende: &depende
+  mysql:
+    condition: service_healthy
+  ms-eureka:
+    condition: service_healthy
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: zaror-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Falta DB_ROOT_PASSWORD en .env}
+      MYSQL_USER: ${DB_USER:?Falta DB_USER en .env}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Falta DB_PASSWORD en .env}
+      TZ: America/Santiago
+    ports:
+      - "3306:3306"            # opcional: para revisar la BD desde el PC
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./docker/mysql-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      # $$ = el contenedor lee su propia variable (la contraseña no queda escrita en el healthcheck)
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  ms-eureka:
+    build: ./ms-eureka
+    container_name: ms-eureka
+    environment:
+      EUREKA_HOSTNAME: ms-eureka
+      TZ: America/Santiago
+    ports:
+      - "8761:8761"            # panel de Eureka para revisar los registros
+    healthcheck:
+      test: ["CMD", "curl", "-fs", "http://localhost:8761/eureka/apps"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 20s
+
+  ms-auth:
+    build: ./ms-auth
+    container_name: ms-auth
+    environment:
+      <<: *ms-comun
+    depends_on: *depende
+
+  ms-usuario:
+    build: ./ms-usuario
+    container_name: ms-usuario
+    environment:
+      <<: *ms-comun
+    depends_on: *depende
+
+  ms-reserva:
+    build: ./ms-reserva
+    container_name: ms-reserva
+    environment:
+      <<: *ms-comun
+    depends_on: *depende
+
+  ms-finanza:
+    build: ./ms-finanza
+    container_name: ms-finanza
+    environment:
+      <<: *ms-comun
+      COMPROBANTES_DIR: /app/uploads
+      WEBPAY_COMMERCE_CODE: ${WEBPAY_COMMERCE_CODE:?Falta WEBPAY_COMMERCE_CODE en .env}
+      WEBPAY_API_KEY: ${WEBPAY_API_KEY:?Falta WEBPAY_API_KEY en .env}
+      WEBPAY_RETURN_URL: ${WEBPAY_RETURN_URL:?Falta WEBPAY_RETURN_URL en .env}
+    volumes:
+      - finanza-uploads:/app/uploads   # las fotos de boletas sobreviven a reinicios
+    depends_on: *depende
+
+  ms-gateway:
+    build: ./ms-gateway
+    container_name: ms-gateway
+    environment:
+      EUREKA_URL: http://ms-eureka:8761/eureka
+      JWT_SECRET: ${JWT_SECRET:?Falta JWT_SECRET en .env}
+      TZ: America/Santiago
+    ports:
+      - "8080:8080"            # única entrada para la app Android
+    depends_on:
+      ms-eureka:
+        condition: service_healthy
+      ms-auth:
+        condition: service_started
+      ms-usuario:
+        condition: service_started
+      ms-reserva:
+        condition: service_started
+      ms-finanza:
+        condition: service_started
+
+volumes:
+  mysql-data:
+  finanza-uploads:

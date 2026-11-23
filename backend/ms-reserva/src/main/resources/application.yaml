@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: ms-reserva
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/db_reserva?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate   # el esquema lo crea Flyway
+    open-in-view: false
+  web:
+    resources:
+      # Solo se sirven archivos estáticos en /sedes/fotos/** (ver WebConfig)
+      add-mappings: false
+
+server:
+  port: 8083
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
+  instance:
+    prefer-ip-address: true
+
+# Secretos: SIEMPRE desde variables de entorno (.env), sin valores por defecto
+jwt:
+  secret: ${JWT_SECRET}
+
+internal:
+  key: ${INTERNAL_KEY}

@@ -1,0 +1,9 @@
+target/
+.env
+uploads/
+.idea/
+# .vscode: solo se versiona launch.json (carga el .env); settings.json tiene rutas de cada PC
+.vscode/*
+!.vscode/launch.json
+*.log
+*.iml

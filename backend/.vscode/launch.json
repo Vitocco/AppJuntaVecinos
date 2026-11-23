@@ -1,0 +1,46 @@
+{
+    // Ejecutar los microservicios desde VS Code (Run and Debug, o Spring Boot Dashboard).
+    // Cada configuración carga las variables del archivo .env de la raíz con "envFile".
+    // Orden recomendado: MySQL (docker compose up -d mysql) -> ms-eureka -> resto -> ms-gateway
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java", "request": "launch", "name": "ms-eureka",
+            "mainClass": "com.zaror.eureka.MsEurekaApplication", "projectName": "ms-eureka",
+            "cwd": "${workspaceFolder}/ms-eureka", "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java", "request": "launch", "name": "ms-auth",
+            "mainClass": "com.zaror.auth.MsAuthApplication", "projectName": "ms-auth",
+            "cwd": "${workspaceFolder}/ms-auth", "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java", "request": "launch", "name": "ms-usuario",
+            "mainClass": "com.zaror.usuario.MsUsuarioApplication", "projectName": "ms-usuario",
+            "cwd": "${workspaceFolder}/ms-usuario", "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java", "request": "launch", "name": "ms-reserva",
+            "mainClass": "com.zaror.reserva.MsReservaApplication", "projectName": "ms-reserva",
+            "cwd": "${workspaceFolder}/ms-reserva", "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java", "request": "launch", "name": "ms-finanza",
+            "mainClass": "com.zaror.finanza.MsFinanzaApplication", "projectName": "ms-finanza",
+            "cwd": "${workspaceFolder}/ms-finanza", "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java", "request": "launch", "name": "ms-gateway",
+            "mainClass": "com.zaror.gateway.MsGatewayApplication", "projectName": "ms-gateway",
+            "cwd": "${workspaceFolder}/ms-gateway", "envFile": "${workspaceFolder}/.env"
+        }
+    ],
+    "compounds": [
+        {
+            // Levanta los 6 de una vez (los ms reintentan registrarse hasta que Eureka responde)
+            "name": "Backend completo (IDE)",
+            "configurations": ["ms-eureka", "ms-auth", "ms-usuario", "ms-reserva", "ms-finanza", "ms-gateway"],
+            "stopAll": true
+        }
+    ]
+}

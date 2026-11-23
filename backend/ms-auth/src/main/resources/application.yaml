@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: ms-auth
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/db_auth?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate   # el esquema lo crea Flyway
+    open-in-view: false
+
+server:
+  port: 8081
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
+  instance:
+    prefer-ip-address: true
+
+# Secretos: SIEMPRE desde variables de entorno (.env), sin valores por defecto
+jwt:
+  secret: ${JWT_SECRET}
+  expiration-ms: 28800000   # 8 horas
+
+internal:
+  key: ${INTERNAL_KEY}

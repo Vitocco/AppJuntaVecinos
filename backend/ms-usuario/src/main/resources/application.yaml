@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: ms-usuario
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/db_usuario?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Santiago
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate   # el esquema lo crea Flyway
+    open-in-view: false
+
+server:
+  port: 8082
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
+  instance:
+    prefer-ip-address: true
+
+# Secretos: SIEMPRE desde variables de entorno (.env), sin valores por defecto
+jwt:
+  secret: ${JWT_SECRET}
+
+internal:
+  key: ${INTERNAL_KEY}
