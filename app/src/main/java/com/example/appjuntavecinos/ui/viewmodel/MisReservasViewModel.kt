@@ -30,9 +30,12 @@ enum class FiltroReservas(val texto: String) {
 }
 
 /** Pestaña Reservas del vecino: todas sus reservas, filtros, cancelar y pagar. */
-class MisReservasViewModel(application: Application) : AndroidViewModel(application) {
-    private val repositorio = ReservaRepository(RetrofitClient.api, AppDatabase.getInstance(application).reservaCacheDao())
-    private val pagos = PagoRepository(RetrofitClient.api)
+class MisReservasViewModel @JvmOverloads constructor(
+    application: Application,
+    private val repositorio: ReservaRepository =
+        ReservaRepository(RetrofitClient.api, AppDatabase.getInstance(application).reservaCacheDao()),
+    private val pagos: PagoRepository = PagoRepository(RetrofitClient.api)
+) : AndroidViewModel(application) {
 
     private val _estado = MutableStateFlow<EstadoUi<List<ReservaDto>>>(EstadoUi.Cargando)
     val estado: StateFlow<EstadoUi<List<ReservaDto>>> = _estado.asStateFlow()
@@ -49,6 +52,10 @@ class MisReservasViewModel(application: Application) : AndroidViewModel(applicat
 
     private val _pagando = MutableStateFlow<Long?>(null)
     val pagando: StateFlow<Long?> = _pagando.asStateFlow()
+
+    // Reserva cuya hoja "¿Cómo quieres pagar?" está abierta (null = cerrada)
+    private val _hojaPago = MutableStateFlow<ReservaDto?>(null)
+    val hojaPago: StateFlow<ReservaDto?> = _hojaPago.asStateFlow()
 
     private val _abrirUrl = MutableStateFlow<String?>(null)
     val abrirUrl: StateFlow<String?> = _abrirUrl.asStateFlow()
@@ -88,13 +95,22 @@ class MisReservasViewModel(application: Application) : AndroidViewModel(applicat
         }
     }
 
-    // ---- Pagar con Webpay ----
-    fun pagar(reserva: ReservaDto) {
+    // ---- Pagar ----
+    /** Botón "Pagar $X": abre la hoja con los medios de pago. */
+    fun abrirHojaPago(reserva: ReservaDto) { _hojaPago.value = reserva }
+    fun cerrarHojaPago() { _hojaPago.value = null }
+
+    /** Webpay > "Ir a pagar": pide la URL al backend y la pantalla abre PagoWebpayScreen. */
+    fun pagarConWebpay() {
+        val reserva = _hojaPago.value ?: return
         if (_pagando.value != null) return
         viewModelScope.launch {
             _pagando.value = reserva.id
             when (val r = pagos.iniciarWebpay(reserva.id)) {
-                is Resultado.Exito -> _abrirUrl.value = Webpay.urlFormulario(r.datos)
+                is Resultado.Exito -> {
+                    _hojaPago.value = null
+                    _abrirUrl.value = Webpay.urlFormulario(r.datos)
+                }
                 is Resultado.Error -> _mensaje.value = r.mensaje
             }
             _pagando.value = null

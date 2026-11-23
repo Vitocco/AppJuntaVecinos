@@ -53,10 +53,12 @@ private fun reservasRepo(app: Application) =
 // =====================================================================
 // INICIO del tesorero
 // =====================================================================
-class TesoreroInicioViewModel(application: Application) : AndroidViewModel(application) {
-    private val finanzas = FinanzasRepository(RetrofitClient.api)
-    private val pagosRepo = PagoRepository(RetrofitClient.api)
-    private val reservas = reservasRepo(application)
+class TesoreroInicioViewModel @JvmOverloads constructor(
+    application: Application,
+    private val finanzas: FinanzasRepository = FinanzasRepository(RetrofitClient.api),
+    private val pagosRepo: PagoRepository = PagoRepository(RetrofitClient.api),
+    private val reservas: ReservaRepository = reservasRepo(application)
+) : AndroidViewModel(application) {
 
     val sesion = SesionManager.sesion
     val mes: YearMonth = Fechas.mesActual()
@@ -88,8 +90,9 @@ class TesoreroInicioViewModel(application: Application) : AndroidViewModel(appli
 // =====================================================================
 // MOVIMIENTOS (lista por mes, anular, ver comprobante)
 // =====================================================================
-class MovimientosViewModel : ViewModel() {
-    private val finanzas = FinanzasRepository(RetrofitClient.api)
+class MovimientosViewModel(
+    private val finanzas: FinanzasRepository = FinanzasRepository(RetrofitClient.api)
+) : ViewModel() {
 
     val meses: List<YearMonth> = Fechas.ultimosMeses(6)
 
@@ -162,9 +165,11 @@ enum class FiltroPagos(val texto: String) {
     }
 }
 
-class PagosViewModel(application: Application) : AndroidViewModel(application) {
-    private val pagosRepo = PagoRepository(RetrofitClient.api)
-    private val reservas = reservasRepo(application)
+class PagosViewModel @JvmOverloads constructor(
+    application: Application,
+    private val pagosRepo: PagoRepository = PagoRepository(RetrofitClient.api),
+    private val reservas: ReservaRepository = reservasRepo(application)
+) : AndroidViewModel(application) {
 
     private val _filtro = MutableStateFlow(FiltroPagos.TODOS)
     val filtro: StateFlow<FiltroPagos> = _filtro.asStateFlow()
@@ -184,8 +189,9 @@ class PagosViewModel(application: Application) : AndroidViewModel(application) {
 // =====================================================================
 // INFORMES del tesorero (ve también los borradores)
 // =====================================================================
-class InformesViewModel : ViewModel() {
-    private val repositorio = InformeRepository(RetrofitClient.api)
+class InformesViewModel(
+    private val repositorio: InformeRepository = InformeRepository(RetrofitClient.api)
+) : ViewModel() {
 
     private val _estado = MutableStateFlow<EstadoUi<List<InformeDto>>>(EstadoUi.Cargando)
     val estado: StateFlow<EstadoUi<List<InformeDto>>> = _estado.asStateFlow()

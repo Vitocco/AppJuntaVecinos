@@ -23,6 +23,7 @@ import com.example.appjuntavecinos.ui.screens.comun.FinanzasScreen
 import com.example.appjuntavecinos.ui.screens.comun.InformeDetalleScreen
 import com.example.appjuntavecinos.ui.screens.comun.PerfilScreen
 import com.example.appjuntavecinos.ui.screens.vecino.MisReservasScreen
+import com.example.appjuntavecinos.ui.screens.vecino.PagoWebpayScreen
 import com.example.appjuntavecinos.ui.screens.vecino.SolicitarArriendoScreen
 import com.example.appjuntavecinos.ui.screens.vecino.VecinoInicioScreen
 import com.example.appjuntavecinos.util.EventosPago
@@ -61,10 +62,13 @@ fun VecinoNavegacion() {
             composable(RutasVecino.INICIO) {
                 VecinoInicioScreen(
                     onSolicitarArriendo = { nav.navigate(RutasVecino.SOLICITAR) },
-                    onVerReservas = { nav.irAPestana(RutasVecino.RESERVAS) }
+                    onVerReservas = { nav.irAPestana(RutasVecino.RESERVAS) },
+                    onPagarWebpay = { nav.navigate(RutasVecino.webpay(it)) }
                 )
             }
-            composable(RutasVecino.RESERVAS) { MisReservasScreen() }
+            composable(RutasVecino.RESERVAS) {
+                MisReservasScreen(onPagarWebpay = { nav.navigate(RutasVecino.webpay(it)) })
+            }
             composable(RutasVecino.FINANZAS) {
                 FinanzasScreen(onInforme = { nav.navigate(RutasVecino.informe(it)) })
             }
@@ -85,6 +89,18 @@ fun VecinoNavegacion() {
                 RutasVecino.INFORME,
                 arguments = listOf(navArgument("id") { type = NavType.LongType })
             ) { InformeDetalleScreen(onVolver = { nav.popBackStack() }) }
+            composable(
+                RutasVecino.WEBPAY,
+                arguments = listOf(navArgument("url") { type = NavType.StringType })
+            ) { entrada ->
+                PagoWebpayScreen(
+                    url = entrada.arguments?.getString("url").orEmpty(),
+                    // solo vuelve si seguimos en el WebView (evita sacar también la pestaña de abajo)
+                    onTerminado = {
+                        if (nav.currentDestination?.route == RutasVecino.WEBPAY) nav.popBackStack()
+                    }
+                )
+            }
         }
     }
 }

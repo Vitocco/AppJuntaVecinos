@@ -15,8 +15,10 @@ import kotlinx.coroutines.launch
  * Detalle de un informe (GET informes/{id}).
  * El id llega por la ruta ("informe/{id}"): Navigation lo guarda en el SavedStateHandle.
  */
-class InformeDetalleViewModel(estadoGuardado: SavedStateHandle) : ViewModel() {
-    private val repositorio = InformeRepository(RetrofitClient.api)
+class InformeDetalleViewModel @JvmOverloads constructor(
+    estadoGuardado: SavedStateHandle,
+    private val repositorio: InformeRepository = InformeRepository(RetrofitClient.api)
+) : ViewModel() {
     private val id: Long = checkNotNull(estadoGuardado.get<Long>("id"))
 
     private val _estado = MutableStateFlow<EstadoUi<InformeDto>>(EstadoUi.Cargando)

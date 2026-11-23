@@ -100,7 +100,7 @@ fun LoginScreen(
                     Spacer(Modifier.height(56.dp))
                     Text("Bienvenido a", style = MaterialTheme.typography.bodyLarge, color = GrisCalido)
                     Spacer(Modifier.height(6.dp))
-                    TextoConPunto("Junta\nZaror", estilo = MaterialTheme.typography.displayLarge)
+                    TextoConPunto("Junta\nZaror",estilo = MaterialTheme.typography.displayLarge)
                     Spacer(Modifier.height(44.dp))
                 },
                 derecha = {

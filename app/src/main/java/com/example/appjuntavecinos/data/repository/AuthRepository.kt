@@ -9,10 +9,6 @@ import com.example.appjuntavecinos.data.remote.llamarApi
 import com.example.appjuntavecinos.data.session.Sesion
 import com.example.appjuntavecinos.data.session.SesionManager
 
-/**
- * Login, registro y cierre de sesión contra el backend.
- * Si el backend responde OK, se guarda la sesión (token, id, nombre, email, rol) en DataStore.
- */
 class AuthRepository(private val api: ApiService) {
 
     suspend fun login(email: String, password: String): Resultado<AuthResponse> {

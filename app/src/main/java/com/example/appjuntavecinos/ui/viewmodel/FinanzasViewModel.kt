@@ -20,9 +20,10 @@ import java.time.YearMonth
  * Finanzas (Vecino y Directiva): resumen del mes elegido, gastos por categoría,
  * informes publicados y — solo Directiva/Tesorero — la lista de movimientos.
  */
-class FinanzasViewModel : ViewModel() {
-    private val finanzas = FinanzasRepository(RetrofitClient.api)
-    private val informesRepo = InformeRepository(RetrofitClient.api)
+class FinanzasViewModel(
+    private val finanzas: FinanzasRepository = FinanzasRepository(RetrofitClient.api),
+    private val informesRepo: InformeRepository = InformeRepository(RetrofitClient.api)
+) : ViewModel() {
 
     // El vecino no tiene permiso para GET movimientos (403): solo se piden si el rol puede
     val verMovimientos: Boolean = SesionManager.sesion.value?.rol in setOf("DIRECTIVA", "TESORERO")

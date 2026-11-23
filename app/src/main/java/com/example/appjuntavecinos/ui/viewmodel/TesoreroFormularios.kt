@@ -51,11 +51,11 @@ data class MovimientoErrores(
  * Parámetros de la ruta: tipo (INGRESO/GASTO), camara (abrir la cámara al entrar)
  * y, para EDITAR, id + fecha (con la fecha se busca el movimiento en su mes).
  */
-class RegistrarMovimientoViewModel(
+class RegistrarMovimientoViewModel @JvmOverloads constructor(
     application: Application,
-    estadoGuardado: SavedStateHandle
+    estadoGuardado: SavedStateHandle,
+    private val finanzas: FinanzasRepository = FinanzasRepository(RetrofitClient.api)
 ) : AndroidViewModel(application) {
-    private val finanzas = FinanzasRepository(RetrofitClient.api)
 
     private val idEditar: Long? = estadoGuardado.get<Long>("id")?.takeIf { it > 0 }
     private val fechaEditar: String? = estadoGuardado.get<String>("fecha")
@@ -191,12 +191,13 @@ data class PagoErrores(
     val comprobante: String? = null
 )
 
-class RegistrarPagoViewModel(
+class RegistrarPagoViewModel @JvmOverloads constructor(
     application: Application,
-    estadoGuardado: SavedStateHandle
+    estadoGuardado: SavedStateHandle,
+    private val reservasRepo: ReservaRepository =
+        ReservaRepository(RetrofitClient.api, AppDatabase.getInstance(application).reservaCacheDao()),
+    private val pagos: PagoRepository = PagoRepository(RetrofitClient.api)
 ) : AndroidViewModel(application) {
-    private val reservasRepo = ReservaRepository(RetrofitClient.api, AppDatabase.getInstance(application).reservaCacheDao())
-    private val pagos = PagoRepository(RetrofitClient.api)
     private val reservaId: Long = checkNotNull(estadoGuardado.get<Long>("reservaId"))
 
     private val _reserva = MutableStateFlow<EstadoUi<ReservaDto>>(EstadoUi.Cargando)
@@ -310,8 +311,9 @@ data class InformeForm(
 
 data class InformeErrores(val titulo: String? = null, val inicio: String? = null, val fin: String? = null)
 
-class NuevoInformeViewModel : ViewModel() {
-    private val repositorio = InformeRepository(RetrofitClient.api)
+class NuevoInformeViewModel(
+    private val repositorio: InformeRepository = InformeRepository(RetrofitClient.api)
+) : ViewModel() {
 
     private val _form = MutableStateFlow(InformeForm(titulo = "Rendición ${Fechas.nombreMes(Fechas.mesActual()).lowercase()}"))
     val form: StateFlow<InformeForm> = _form.asStateFlow()

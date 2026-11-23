@@ -36,9 +36,13 @@ data class SolicitudErrores(
 )
 
 /** Solicitar arriendo: elegir sede, día, horario, motivo y personas -> POST reservas. */
-class SolicitarArriendoViewModel(application: Application) : AndroidViewModel(application) {
-    private val sedesRepo = SedeRepository(RetrofitClient.api, AppDatabase.getInstance(application).sedeDao())
-    private val reservasRepo = ReservaRepository(RetrofitClient.api, AppDatabase.getInstance(application).reservaCacheDao())
+class SolicitarArriendoViewModel @JvmOverloads constructor(
+    application: Application,
+    private val sedesRepo: SedeRepository =
+        SedeRepository(RetrofitClient.api, AppDatabase.getInstance(application).sedeDao()),
+    private val reservasRepo: ReservaRepository =
+        ReservaRepository(RetrofitClient.api, AppDatabase.getInstance(application).reservaCacheDao())
+) : AndroidViewModel(application) {
 
     // Días que se ofrecen: desde mañana, 3 semanas
     val dias: List<LocalDate> = (1..21).map { Fechas.hoy().plusDays(it.toLong()) }

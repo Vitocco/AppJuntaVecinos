@@ -33,6 +33,9 @@ object RutasVecino {
     const val SOLICITAR = "solicitar"
     const val INFORME = "informe/{id}"
     fun informe(id: Long) = "informe/$id"
+    // Formulario de Webpay en un WebView (la URL va codificada)
+    const val WEBPAY = "webpay?url={url}"
+    fun webpay(url: String) = "webpay?url=${android.net.Uri.encode(url)}"
 }
 
 /** Grafo de la DIRECTIVA:  Inicio | Solicitudes | Calendario | Finanzas | Perfil */

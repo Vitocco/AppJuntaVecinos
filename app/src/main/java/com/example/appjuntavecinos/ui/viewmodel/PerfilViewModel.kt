@@ -29,9 +29,10 @@ data class PerfilErrores(
 )
 
 /** Perfil: lo comparten los 3 roles. */
-class PerfilViewModel : ViewModel() {
-    private val repositorio = UsuarioRepository(RetrofitClient.api)
-    private val auth = AuthRepository(RetrofitClient.api)
+class PerfilViewModel(
+    private val repositorio: UsuarioRepository = UsuarioRepository(RetrofitClient.api),
+    private val auth: AuthRepository = AuthRepository(RetrofitClient.api)
+) : ViewModel() {
 
     val sesion = SesionManager.sesion
 

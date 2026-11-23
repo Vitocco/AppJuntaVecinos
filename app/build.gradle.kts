@@ -1,9 +1,17 @@
+import java.util.Properties
+
+val keystoreProperties = Properties()
+val keystoreFile = rootProject.file("keystore.properties")
+if (keystoreFile.exists()) keystoreFile.inputStream().use { keystoreProperties.load(it) }
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     // KSP (Kotlin Symbol Processing): genera código automáticamente al compilar.
     // Room lo necesita para crear la implementación real de los @Dao y la @Database.
     id("com.google.devtools.ksp") version "2.3.6"
+    // Kover: mide la cobertura de las pruebas unitarias (reporte HTML)
+    id("org.jetbrains.kotlinx.kover") version "0.9.11"
 }
 
 android {
@@ -22,12 +30,22 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = rootProject.file("keystore/junta-zaror.jks")
+            storePassword = keystoreProperties.getProperty("storePassword", "")
+            keyAlias = "junta-zaror"
+            keyPassword = keystoreProperties.getProperty("keyPassword", "")
+        }
+    }
+
     buildTypes {
         release {
             optimization {
-                enable = true
+                enable = false
                 packageScope = setOf("androidx.**", "kotlin.**", "kotlinx.**")
             }
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
@@ -88,19 +106,34 @@ dependencies {
     // Recargar datos cada vez que una pantalla vuelve a verse (LifecycleResumeEffect)
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.11.0")
 
-    // Custom Tabs: abre el formulario de Webpay dentro de la app (Etapa 4)
-    implementation("androidx.browser:browser:1.8.0")
-
     // java.time en versiones antiguas de Android
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
 
     // WorkManager → ejecuta la notificación aunque la app esté cerrada
     implementation("androidx.work:work-runtime-ktx:2.10.0")
     testImplementation(libs.junit)
+    // Pruebas unitarias: MockK simula los repositorios/API y coroutines-test controla las corrutinas
+    testImplementation("io.mockk:mockk:1.14.12")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.11.0")
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
+}
+
+// Cobertura: SOLO ViewModel y Repository (sin pantallas Compose, data class, DTO ni theme).
+// Reporte: ./gradlew koverHtmlReportDebug -> app/build/reports/kover/htmlDebug/index.html
+kover {
+    reports {
+        filters {
+            includes {
+                classes(
+                    "com.example.appjuntavecinos.ui.viewmodel.*ViewModel*",
+                    "com.example.appjuntavecinos.data.repository.*Repository*"
+                )
+            }
+        }
+    }
 }

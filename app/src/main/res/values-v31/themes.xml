@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android 12+ (API 31) siempre muestra un splash del sistema al abrir la app.
+         Aquí se define: el símbolo de Junta Zaror (crema) sobre fondo Carbón #1B1917.
+         El resto es igual a values/themes.xml. -->
+    <style name="Theme.AppJuntaVecinos" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/carbon</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/barra_nav</item>
+        <item name="android:windowSplashScreenBackground">@color/carbon</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+    </style>
+</resources>

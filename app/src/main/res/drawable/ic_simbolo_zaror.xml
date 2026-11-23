@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Símbolo de Junta Zaror (casa + globo de diálogo + corazón) sin el margen del ícono adaptativo.
+     Mismos trazos que ic_launcher_foreground, recortados al símbolo. Se tiñe desde Compose (logo del login). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="62"
+    android:viewportHeight="62">
+    <group android:translateX="-23" android:translateY="-25">
+    <!-- Techo -->
+        <path
+            android:pathData="M28,51 L54,30 L80,51"
+            android:strokeColor="#F4EFE7"
+            android:strokeWidth="5.5"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+        <!-- Muros con forma de globo de diálogo -->
+        <path
+            android:pathData="M36.5,46 V68 Q36.5,73 41.5,73 H46.5 L45,82.5 L57,73 H66.5 Q71.5,73 71.5,68 V46"
+            android:strokeColor="#F4EFE7"
+            android:strokeWidth="5.5"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+        <!-- Chimenea -->
+        <path
+            android:pathData="M66,33.5 H72 V45 L66,40.2 Z"
+            android:fillColor="#F4EFE7" />
+        <!-- Corazón -->
+        <path
+            android:pathData="M54,67 C46,61.5 44.5,57 46,54.2 C47.6,51.2 51.8,51.1 54,54 C56.2,51.1 60.4,51.2 62,54.2 C63.5,57 62,61.5 54,67 Z"
+            android:fillColor="#F4EFE7" />
+    </group>
+</vector>

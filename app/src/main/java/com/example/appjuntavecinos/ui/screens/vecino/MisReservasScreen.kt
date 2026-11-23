@@ -9,13 +9,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.appjuntavecinos.ui.components.AbrirWebpay
+import com.example.appjuntavecinos.ui.components.AlRecibirUrlWebpay
 import com.example.appjuntavecinos.ui.components.AlVolverAPantalla
 import com.example.appjuntavecinos.ui.components.BotonAccion
 import com.example.appjuntavecinos.ui.components.BotonTonal
 import com.example.appjuntavecinos.ui.components.ChipFiltro
 import com.example.appjuntavecinos.ui.components.DialogoConfirmacion
 import com.example.appjuntavecinos.ui.components.EstadoVacio
+import com.example.appjuntavecinos.ui.components.HojaPago
 import com.example.appjuntavecinos.ui.components.MostrarMensaje
 import com.example.appjuntavecinos.ui.components.PantallaLista
 import com.example.appjuntavecinos.ui.components.TarjetaReservaFoto
@@ -32,21 +33,35 @@ import com.example.appjuntavecinos.util.sePuedeCancelar
 
 /**
  * Mis reservas (diseño 6): chips Todas / Pendientes / Aprobadas / Pasadas y una tarjeta
- * con la foto de la sede por reserva. Se puede pagar (Webpay) y cancelar con confirmación.
+ * con la foto de la sede por reserva. Se puede pagar (hoja de medios de pago) y cancelar con confirmación.
  */
 @Composable
-fun MisReservasScreen(viewModel: MisReservasViewModel = viewModel()) {
+fun MisReservasScreen(
+    onPagarWebpay: (String) -> Unit,
+    viewModel: MisReservasViewModel = viewModel()
+) {
     val estado by viewModel.estado.collectAsState()
     val filtro by viewModel.filtro.collectAsState()
     val porCancelar by viewModel.porCancelar.collectAsState()
     val cancelando by viewModel.cancelando.collectAsState()
     val pagando by viewModel.pagando.collectAsState()
     val abrirUrl by viewModel.abrirUrl.collectAsState()
+    val hojaPago by viewModel.hojaPago.collectAsState()
     val mensaje by viewModel.mensaje.collectAsState()
 
     AlVolverAPantalla { viewModel.cargar() }
     MostrarMensaje(mensaje, viewModel::mensajeMostrado)
-    AbrirWebpay(abrirUrl, viewModel::urlAbierta)
+    AlRecibirUrlWebpay(abrirUrl, viewModel::urlAbierta, onPagarWebpay)
+
+    hojaPago?.let { r ->
+        HojaPago(
+            reserva = r,
+            iniciandoWebpay = pagando == r.id,
+            // pagos/webpay/iniciar -> PagoWebpayScreen
+            onIrAWebpay = viewModel::pagarConWebpay,
+            onCerrar = viewModel::cerrarHojaPago
+        )
+    }
 
     porCancelar?.let { r ->
         DialogoConfirmacion(
@@ -84,8 +99,8 @@ fun MisReservasScreen(viewModel: MisReservasViewModel = viewModel()) {
                     acciones = if (puedePagar || reserva.sePuedeCancelar) ({
                         if (puedePagar) {
                             BotonAccion(
-                                texto = "Pagar ${Moneda.pesos(reserva.precio)} con Webpay",
-                                onClick = { viewModel.pagar(reserva) },
+                                texto = "Pagar ${Moneda.pesos(reserva.precio)}",
+                                onClick = { viewModel.abrirHojaPago(reserva) },
                                 cargando = pagando == reserva.id
                             )
                         }

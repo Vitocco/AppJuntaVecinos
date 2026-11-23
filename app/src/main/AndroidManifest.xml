@@ -53,9 +53,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- Vuelta desde Webpay: el backend redirige a zaror://pago?estado=ok|error
-                 y Android abre la app aquí. singleTask = reutiliza esta misma pantalla
-                 (y cierra el Custom Tab que quedó encima). -->
+            <!-- Vuelta desde Webpay: el backend redirige a zaror://pago?estado=ok|error.
+                 Normalmente lo intercepta el WebView de PagoWebpayScreen; este filtro queda
+                 de respaldo por si el enlace se abre fuera de la app (singleTask = reutiliza
+                 esta misma pantalla). -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />

@@ -16,13 +16,18 @@ import kotlinx.coroutines.launch
 /** Decisión pendiente de confirmar en el diálogo: qué reserva y si se aprueba o rechaza. */
 data class Decision(val reserva: ReservaDto, val aprobar: Boolean)
 
+/** Repositorio por defecto de las hijas (en las pruebas se pasa un mock). */
+fun reservasPorDefecto(application: Application) =
+    ReservaRepository(RetrofitClient.api, AppDatabase.getInstance(application).reservaCacheDao())
+
 /**
  * Base de las pantallas de la Directiva que aprueban/rechazan solicitudes
  * (Inicio y Solicitudes). Aquí está la lógica común; cada hija define cargar().
  */
-abstract class GestionReservasViewModel(application: Application) : AndroidViewModel(application) {
-    protected val reservasRepo =
-        ReservaRepository(RetrofitClient.api, AppDatabase.getInstance(application).reservaCacheDao())
+abstract class GestionReservasViewModel(
+    application: Application,
+    protected val reservasRepo: ReservaRepository
+) : AndroidViewModel(application) {
 
     private val _porDecidir = MutableStateFlow<Decision?>(null)
     val porDecidir: StateFlow<Decision?> = _porDecidir.asStateFlow()

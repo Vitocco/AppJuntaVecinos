@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">AppJuntaVecinos</string>
+    <string name="app_name">Junta Zaror</string>
 
     <!-- Reglamento de uso de sedes (documento FICTICIO con fines académicos).
          Se muestra en el registro, en una hoja inferior (HojaReglamento.kt). -->

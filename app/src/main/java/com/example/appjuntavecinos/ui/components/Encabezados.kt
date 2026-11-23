@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -23,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
@@ -54,7 +54,7 @@ fun TextoConPunto(texto: String, estilo: TextStyle, modifier: Modifier = Modifie
     )
 }
 
-/** Logo: cuadrito terracota con una casa + "Junta Zaror". */
+/** Logo: cuadrito terracota con el símbolo de la app (casa + globo + corazón) + "Junta Zaror". */
 @Composable
 fun LogoZaror(modifier: Modifier = Modifier) {
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
@@ -65,7 +65,12 @@ fun LogoZaror(modifier: Modifier = Modifier) {
                 .background(Terracota),
             contentAlignment = Alignment.Center
         ) {
-            Icon(Icons.Outlined.Home, contentDescription = null, tint = Crema, modifier = Modifier.size(22.dp))
+            Icon(
+                painterResource(com.example.appjuntavecinos.R.drawable.ic_simbolo_zaror),
+                contentDescription = null,
+                tint = Crema,
+                modifier = Modifier.size(26.dp)   // el vector no trae margen: 26dp ocupa lo mismo que la casa de 22dp
+            )
         }
         Spacer(Modifier.width(12.dp))
         Text("Junta Zaror", style = MaterialTheme.typography.titleLarge, color = TerracotaSuave)

@@ -14,7 +14,6 @@ class UsuarioRepository(private val api: ApiService) {
 
     suspend fun actualizarPerfil(datos: ActualizarUsuarioRequest): Resultado<UsuarioDto> {
         val resultado = llamarApi { api.actualizarPerfil(datos) }
-        // El saludo "Hola, <nombre>" sale de la sesión: se actualiza también ahí
         if (resultado is Resultado.Exito) SesionManager.actualizarNombre(resultado.datos.nombre)
         return resultado
     }

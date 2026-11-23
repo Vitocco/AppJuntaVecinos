@@ -25,10 +25,13 @@ import java.time.YearMonth
 data class SedeHoy(val sede: SedeDto, val ocupadaDesde: String?)
 
 /** Pestaña Calendario (Directiva): tarjetas de sedes con "Libre hoy" / "Ocupada HH:mm". */
-class CalendarioViewModel(application: Application) : AndroidViewModel(application) {
-    private val db = AppDatabase.getInstance(application)
-    private val sedesRepo = SedeRepository(RetrofitClient.api, db.sedeDao())
-    private val reservasRepo = ReservaRepository(RetrofitClient.api, db.reservaCacheDao())
+class CalendarioViewModel @JvmOverloads constructor(
+    application: Application,
+    private val sedesRepo: SedeRepository =
+        SedeRepository(RetrofitClient.api, AppDatabase.getInstance(application).sedeDao()),
+    private val reservasRepo: ReservaRepository =
+        ReservaRepository(RetrofitClient.api, AppDatabase.getInstance(application).reservaCacheDao())
+) : AndroidViewModel(application) {
 
     private val _estado = MutableStateFlow<EstadoUi<List<SedeHoy>>>(EstadoUi.Cargando)
     val estado: StateFlow<EstadoUi<List<SedeHoy>>> = _estado.asStateFlow()
@@ -52,10 +55,14 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
  * Detalle de una sede (Directiva): calendario del mes con los días ocupados
  * (GET sedes/{id}/disponibilidad) y las reservas del día elegido (GET reservas).
  */
-class SedeDetalleViewModel(application: Application, estadoGuardado: SavedStateHandle) : AndroidViewModel(application) {
-    private val db = AppDatabase.getInstance(application)
-    private val sedesRepo = SedeRepository(RetrofitClient.api, db.sedeDao())
-    private val reservasRepo = ReservaRepository(RetrofitClient.api, db.reservaCacheDao())
+class SedeDetalleViewModel @JvmOverloads constructor(
+    application: Application,
+    estadoGuardado: SavedStateHandle,
+    private val sedesRepo: SedeRepository =
+        SedeRepository(RetrofitClient.api, AppDatabase.getInstance(application).sedeDao()),
+    private val reservasRepo: ReservaRepository =
+        ReservaRepository(RetrofitClient.api, AppDatabase.getInstance(application).reservaCacheDao())
+) : AndroidViewModel(application) {
     private val sedeId: Long = checkNotNull(estadoGuardado.get<Long>("sedeId"))
 
     private val _sede = MutableStateFlow<EstadoUi<SedeDto>>(EstadoUi.Cargando)

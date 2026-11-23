@@ -22,8 +22,8 @@ val LocalMensajes = compositionLocalOf<SnackbarHostState> { error("Falta el Snac
 
 /** Snackbar con los colores de la app. */
 @Composable
-fun SnackbarZaror(estado: SnackbarHostState) {
-    SnackbarHost(estado) { datos ->
+fun SnackbarZaror(estado: SnackbarHostState, modifier: androidx.compose.ui.Modifier = androidx.compose.ui.Modifier) {
+    SnackbarHost(estado, modifier) { datos ->
         Snackbar(
             snackbarData = datos,
             containerColor = CarbonIcono,

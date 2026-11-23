@@ -51,15 +51,3 @@ fun PedirPermisoNotificaciones() {
         }
     }
 }
-
-/** Abre la URL de Webpay en un Custom Tab cuando el ViewModel la entrega (evento de un uso). */
-@Composable
-fun AbrirWebpay(url: String?, onAbierta: () -> Unit) {
-    val context = LocalContext.current
-    LaunchedEffect(url) {
-        if (url != null) {
-            onAbierta()
-            com.example.appjuntavecinos.util.Webpay.abrir(context, url)
-        }
-    }
-}

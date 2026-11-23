@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.viewModelScope
 import com.example.appjuntavecinos.data.remote.Resultado
 import com.example.appjuntavecinos.data.remote.dto.ReservaDto
+import com.example.appjuntavecinos.data.repository.ReservaRepository
 import com.example.appjuntavecinos.data.session.SesionManager
 import com.example.appjuntavecinos.util.Fechas
 import com.example.appjuntavecinos.util.dia
@@ -23,7 +24,10 @@ data class InicioDirectiva(
 )
 
 /** Inicio de la Directiva: contadores, solicitudes por revisar y próximas en la sede. */
-class DirectivaInicioViewModel(application: Application) : GestionReservasViewModel(application) {
+class DirectivaInicioViewModel @JvmOverloads constructor(
+    application: Application,
+    reservasRepo: ReservaRepository = reservasPorDefecto(application)
+) : GestionReservasViewModel(application, reservasRepo) {
     val sesion = SesionManager.sesion
     val mes: YearMonth = Fechas.mesActual()
 
@@ -58,7 +62,10 @@ enum class FiltroSolicitudes(val texto: String, val estado: String?) {
 }
 
 /** Solicitudes: GET reservas?estado= según el chip elegido. */
-class SolicitudesViewModel(application: Application) : GestionReservasViewModel(application) {
+class SolicitudesViewModel @JvmOverloads constructor(
+    application: Application,
+    reservasRepo: ReservaRepository = reservasPorDefecto(application)
+) : GestionReservasViewModel(application, reservasRepo) {
     private val _filtro = MutableStateFlow(FiltroSolicitudes.PENDIENTES)
     val filtro: StateFlow<FiltroSolicitudes> = _filtro.asStateFlow()
 

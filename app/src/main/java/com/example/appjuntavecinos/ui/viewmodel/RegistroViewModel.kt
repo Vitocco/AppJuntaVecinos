@@ -28,8 +28,12 @@ data class RegistroErrores(
     val aceptaReglamento: String? = null
 )
 
-class RegistroViewModel : ViewModel() {
-    private val repositorio = AuthRepository(RetrofitClient.api)
+// Repositorio y validador de email por constructor (con valor por defecto) para las pruebas unitarias:
+// Patterns es de Android y no existe en la JVM de los tests.
+class RegistroViewModel(
+    private val repositorio: AuthRepository = AuthRepository(RetrofitClient.api),
+    private val esEmailValido: (String) -> Boolean = { Patterns.EMAIL_ADDRESS.matcher(it).matches() }
+) : ViewModel() {
 
     private val _formulario = MutableStateFlow(RegistroModel())
     val formulario: StateFlow<RegistroModel> = _formulario.asStateFlow()
@@ -108,7 +112,7 @@ class RegistroViewModel : ViewModel() {
 
         if (datos.email.isBlank()) {
             emailError = "El correo es obligatorio"
-        } else if (!Patterns.EMAIL_ADDRESS.matcher(datos.email.trim()).matches()) {
+        } else if (!esEmailValido(datos.email.trim())) {
             emailError = "Formato inválido. Ej: nombre@correo.com"
         }
 
