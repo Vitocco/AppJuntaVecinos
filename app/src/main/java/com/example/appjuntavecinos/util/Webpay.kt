@@ -20,6 +20,9 @@ object Webpay {
         Uri.parse(r.url).buildUpon().appendQueryParameter("token_ws", r.token).build().toString()
 }
 
+/** Pago Webpay listo para abrir: [url] del formulario y la reserva (para reintentar). */
+data class AbrirWebpay(val reservaId: Long, val url: String)
+
 /**
  * Resultado que llega por el deep link zaror://pago?estado=ok|error.
  * PagoWebpayScreen (o MainActivity) lo publica aquí; el Scaffold del vecino lo muestra en un Snackbar.

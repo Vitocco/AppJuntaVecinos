@@ -7,16 +7,24 @@ import android.content.ContextWrapper
 import android.graphics.Bitmap
 import android.net.Uri
 import android.view.WindowManager
+import android.webkit.CookieManager
+import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.background
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,43 +33,65 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.appjuntavecinos.BuildConfig
+import com.example.appjuntavecinos.ui.components.BotonAccion
+import com.example.appjuntavecinos.ui.components.MensajeError
 import com.example.appjuntavecinos.ui.theme.Carbon
 import com.example.appjuntavecinos.ui.theme.CarbonIcono
 import com.example.appjuntavecinos.ui.theme.Crema
+import com.example.appjuntavecinos.ui.theme.GrisCalido
 import com.example.appjuntavecinos.ui.theme.Terracota
+import com.example.appjuntavecinos.ui.viewmodel.PagoWebpayViewModel
 import com.example.appjuntavecinos.util.EventosPago
 
 /**
  * Formulario de pago de Webpay (Transbank, ambiente de integración) dentro de un WebView,
- * sin Chrome. [url] ya trae  ?token_ws=<token>  (Webpay.urlFormulario).
+ * sin Chrome. La URL ya trae  ?token_ws=<token>  (Webpay.urlFormulario).
  *
  *  - Cuando el backend termina redirige a zaror://pago?estado=ok|error: el WebView NO carga
- *    esa URL, publica el resultado en [EventosPago] (el Scaffold del vecino muestra el Snackbar)
- *    y llama a [onTerminado].
+ *    esa URL.
+ *      ok    -> publica el resultado en [EventosPago] (Snackbar del vecino) y llama a [onTerminado].
+ *      error -> (rechazado o anulado) muestra un aviso con "Intentar de nuevo", que pide una
+ *               transacción NUEVA para la misma reserva, o "Volver".
  *  - Cerrar (X o Atrás) sin terminar también llama a [onTerminado]; la reserva sigue "Por pagar".
  *  - Al volver, Inicio / Mis reservas recargan reservas/mias solas (AlVolverAPantalla).
  *  - FLAG_SECURE (solo en release) mientras esta pantalla está abierta: sin capturas ni grabación.
+ *  - imePadding: con enableEdgeToEdge (Android 15+) la ventana no se achica con el teclado, así
+ *    que el WebView se encoge a mano para que los campos de abajo (CVV, RUT, clave) se vean.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("SetJavaScriptEnabled")   // el formulario de Transbank necesita JavaScript
 @Composable
-fun PagoWebpayScreen(url: String, onTerminado: () -> Unit) {
-    var cargando by remember { mutableStateOf(true) }
+fun PagoWebpayScreen(
+    onTerminado: () -> Unit,
+    viewModel: PagoWebpayViewModel = viewModel()
+) {
+    val url by viewModel.url.collectAsState()
+    val reintentando by viewModel.reintentando.collectAsState()
+    val errorReintento by viewModel.error.collectAsState()
+
+    var progreso by remember { mutableIntStateOf(0) }          // 0..100 (onProgressChanged)
+    var rechazo by remember { mutableStateOf<Uri?>(null) }     // zaror://pago?estado=error recibido
+    var webView by remember { mutableStateOf<WebView?>(null) }
     val context = LocalContext.current
 
     // Protección de pantalla (FLAG_SECURE): en producción (release) la pantalla de pago queda
@@ -73,13 +103,25 @@ fun PagoWebpayScreen(url: String, onTerminado: () -> Unit) {
         onDispose { ventana?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE) }
     }
 
-    BackHandler(onBack = onTerminado)
+    // Carga la transacción actual; al reintentar, url cambia y se carga el formulario nuevo
+    LaunchedEffect(webView, url) {
+        val vista = webView ?: return@LaunchedEffect
+        rechazo = null
+        vista.loadUrl(url)
+    }
 
-    Column(Modifier.fillMaxSize().background(Carbon)) {
+    // Salir: si el pago fue rechazado/anulado, avisa "El pago no se completó" (Snackbar)
+    val salir = {
+        rechazo?.let(EventosPago::recibir)
+        onTerminado()
+    }
+    BackHandler(onBack = salir)
+
+    Column(Modifier.fillMaxSize().background(Carbon).imePadding()) {
         TopAppBar(
             title = { Text("Pago con Webpay", style = MaterialTheme.typography.titleLarge) },
             navigationIcon = {
-                IconButton(onClick = onTerminado) {
+                IconButton(onClick = salir) {
                     Icon(Icons.Outlined.Close, contentDescription = "Cerrar")
                 }
             },
@@ -92,47 +134,109 @@ fun PagoWebpayScreen(url: String, onTerminado: () -> Unit) {
             modifier = Modifier.statusBarsPadding()
         )
         // Indicador de carga (deja el espacio fijo para que la página no salte)
-        if (cargando) {
-            LinearProgressIndicator(color = Terracota, trackColor = CarbonIcono, modifier = Modifier.fillMaxWidth())
+        if (progreso < 100 && rechazo == null) {
+            LinearProgressIndicator(
+                progress = { progreso / 100f },
+                color = Terracota,
+                trackColor = CarbonIcono,
+                modifier = Modifier.fillMaxWidth()
+            )
         } else {
             Spacer(Modifier.height(4.dp))
         }
-        AndroidView(
-            modifier = Modifier.fillMaxSize(),
-            factory = { ctx ->
-                WebView(ctx).apply {
-                    settings.javaScriptEnabled = true
-                    settings.domStorageEnabled = true
-                    webViewClient = object : WebViewClient() {
-                        private var terminado = false   // evita volver dos veces
+        Box(Modifier.fillMaxSize()) {
+            AndroidView(
+                modifier = Modifier.fillMaxSize(),
+                factory = { ctx ->
+                    WebView(ctx).apply {
+                        settings.javaScriptEnabled = true
+                        settings.domStorageEnabled = true
+                        // Páginas no adaptadas al celular (la del banco de prueba): se ajustan al ancho
+                        settings.useWideViewPort = true
+                        settings.loadWithOverviewMode = true
+                        settings.setSupportZoom(true)
+                        settings.builtInZoomControls = true
+                        settings.displayZoomControls = false
+                        // El formulario de Transbank usa cookies de sesión (incluidas las de terceros)
+                        CookieManager.getInstance().setAcceptCookie(true)
+                        CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
 
-                        override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean =
-                            interceptarVuelta(request.url)
-
-                        override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
-                            // Respaldo por si la redirección no pasa por shouldOverrideUrlLoading
-                            if (url != null && interceptarVuelta(Uri.parse(url))) view.stopLoading()
-                            else cargando = true
+                        webChromeClient = object : WebChromeClient() {
+                            override fun onProgressChanged(view: WebView, nuevo: Int) { progreso = nuevo }
                         }
+                        webViewClient = object : WebViewClient() {
+                            private var terminado = false   // evita volver dos veces
 
-                        override fun onPageFinished(view: WebView, url: String?) { cargando = false }
+                            override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean =
+                                interceptarVuelta(request.url)
 
-                        /** zaror://pago?estado=ok|error -> no se carga: se avisa y se cierra. */
-                        private fun interceptarVuelta(uri: Uri): Boolean {
-                            if (!uri.toString().startsWith("zaror://pago")) return false
-                            if (!terminado) {
-                                terminado = true
-                                EventosPago.recibir(uri)
-                                onTerminado()
+                            override fun onPageStarted(view: WebView, url: String?, favicon: Bitmap?) {
+                                // Respaldo por si la redirección no pasa por shouldOverrideUrlLoading
+                                if (url != null && interceptarVuelta(Uri.parse(url))) view.stopLoading()
                             }
-                            return true
+
+                            /** zaror://pago?estado=ok|error -> no se carga: se avisa (ok) o se ofrece reintentar. */
+                            private fun interceptarVuelta(uri: Uri): Boolean {
+                                if (!uri.toString().startsWith("zaror://pago")) return false
+                                if (terminado) return true
+                                if (uri.getQueryParameter("estado") == "ok") {
+                                    terminado = true
+                                    EventosPago.recibir(uri)
+                                    onTerminado()
+                                } else {
+                                    rechazo = uri
+                                }
+                                return true
+                            }
                         }
+                        webView = this
                     }
-                    loadUrl(url)
-                }
-            },
-            onRelease = { it.destroy() }
+                },
+                onRelease = { it.destroy() }
+            )
+
+            if (rechazo != null) {
+                PagoRechazado(
+                    reintentando = reintentando,
+                    error = errorReintento,
+                    onReintentar = viewModel::reintentar,
+                    onVolver = salir
+                )
+            }
+        }
+    }
+}
+
+/** Aviso cuando Webpay vuelve con estado=error: tarjeta rechazada o compra anulada. */
+@Composable
+private fun PagoRechazado(
+    reintentando: Boolean,
+    error: String?,
+    onReintentar: () -> Unit,
+    onVolver: () -> Unit
+) {
+    Column(
+        modifier = Modifier.fillMaxSize().background(Carbon).padding(24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("El pago no se completó", style = MaterialTheme.typography.headlineSmall, color = Crema)
+        Spacer(Modifier.height(12.dp))
+        Text(
+            "La tarjeta fue rechazada o la compra se anuló. No se realizó ningún cargo y tu " +
+                "reserva sigue por pagar.",
+            style = MaterialTheme.typography.bodyLarge,
+            color = GrisCalido,
+            textAlign = TextAlign.Center
         )
+        Spacer(Modifier.height(16.dp))
+        MensajeError(error)
+        Spacer(Modifier.height(16.dp))
+        BotonAccion("Intentar de nuevo", onReintentar, Modifier.fillMaxWidth(), cargando = reintentando)
+        Spacer(Modifier.height(8.dp))
+        TextButton(onClick = onVolver, enabled = !reintentando) {
+            Text("Volver", color = Crema)
+        }
     }
 }
 

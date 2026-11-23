@@ -1,6 +1,7 @@
 package com.example.appjuntavecinos.ui.components
 
 import android.content.ClipData
+import com.example.appjuntavecinos.util.AbrirWebpay
 import android.content.ClipboardManager
 import android.content.Context
 import androidx.compose.animation.AnimatedContent
@@ -290,7 +291,7 @@ private fun Monto(precio: Long) {
  * consumida y abre la pantalla de pago (PagoWebpayScreen).
  */
 @Composable
-fun AlRecibirUrlWebpay(url: String?, onConsumida: () -> Unit, onAbrir: (String) -> Unit) {
+fun AlRecibirUrlWebpay(url: AbrirWebpay?, onConsumida: () -> Unit, onAbrir: (AbrirWebpay) -> Unit) {
     LaunchedEffect(url) {
         if (url != null) {
             onConsumida()

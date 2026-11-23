@@ -10,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.appjuntavecinos.ui.components.AlRecibirUrlWebpay
+import com.example.appjuntavecinos.util.AbrirWebpay
 import com.example.appjuntavecinos.ui.components.AlVolverAPantalla
 import com.example.appjuntavecinos.ui.components.BotonAccion
 import com.example.appjuntavecinos.ui.components.BotonTonal
@@ -37,7 +38,7 @@ import com.example.appjuntavecinos.util.sePuedeCancelar
  */
 @Composable
 fun MisReservasScreen(
-    onPagarWebpay: (String) -> Unit,
+    onPagarWebpay: (AbrirWebpay) -> Unit,
     viewModel: MisReservasViewModel = viewModel()
 ) {
     val estado by viewModel.estado.collectAsState()

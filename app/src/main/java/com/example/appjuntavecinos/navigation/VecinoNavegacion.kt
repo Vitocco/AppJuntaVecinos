@@ -91,10 +91,12 @@ fun VecinoNavegacion() {
             ) { InformeDetalleScreen(onVolver = { nav.popBackStack() }) }
             composable(
                 RutasVecino.WEBPAY,
-                arguments = listOf(navArgument("url") { type = NavType.StringType })
-            ) { entrada ->
+                arguments = listOf(
+                    navArgument("url") { type = NavType.StringType },
+                    navArgument("reserva") { type = NavType.LongType }
+                )
+            ) {
                 PagoWebpayScreen(
-                    url = entrada.arguments?.getString("url").orEmpty(),
                     // solo vuelve si seguimos en el WebView (evita sacar también la pestaña de abajo)
                     onTerminado = {
                         if (nav.currentDestination?.route == RutasVecino.WEBPAY) nav.popBackStack()

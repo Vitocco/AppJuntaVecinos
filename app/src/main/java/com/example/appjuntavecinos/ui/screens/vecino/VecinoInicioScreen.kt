@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.appjuntavecinos.data.remote.dto.Feriado
 import com.example.appjuntavecinos.ui.components.AlRecibirUrlWebpay
+import com.example.appjuntavecinos.util.AbrirWebpay
 import com.example.appjuntavecinos.ui.components.AlVolverAPantalla
 import com.example.appjuntavecinos.ui.components.BotonAccion
 import com.example.appjuntavecinos.ui.components.BotonPrincipal
@@ -48,7 +49,7 @@ import com.example.appjuntavecinos.util.porPagar
 fun VecinoInicioScreen(
     onSolicitarArriendo: () -> Unit,
     onVerReservas: () -> Unit,
-    onPagarWebpay: (String) -> Unit,
+    onPagarWebpay: (AbrirWebpay) -> Unit,
     viewModel: VecinoInicioViewModel = viewModel()
 ) {
     val sesion by viewModel.sesion.collectAsState()

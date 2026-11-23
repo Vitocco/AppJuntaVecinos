@@ -133,7 +133,7 @@ MS-RESERVA, MS-FINANZA y MS-GATEWAY.
 
 ## Pruebas unitarias
 
-JUnit + MockK · **70 pruebas** · cobertura **89 %** (Kover) en ViewModel y Repository.
+JUnit + MockK · **73 pruebas** · cobertura **89,2 %** de líneas (Kover) en ViewModel y Repository.
 
 Desde la raíz del repositorio:
 

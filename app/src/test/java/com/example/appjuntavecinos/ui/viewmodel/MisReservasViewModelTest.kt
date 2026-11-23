@@ -9,6 +9,7 @@ import com.example.appjuntavecinos.data.remote.Resultado
 import com.example.appjuntavecinos.data.remote.dto.WebpayIniciarResponse
 import com.example.appjuntavecinos.data.repository.PagoRepository
 import com.example.appjuntavecinos.data.repository.ReservaRepository
+import com.example.appjuntavecinos.util.AbrirWebpay
 import com.example.appjuntavecinos.util.Webpay
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -108,7 +109,7 @@ class MisReservasViewModelTest {
         advanceUntilIdle()
 
         // Verificar
-        assertEquals("https://webpay.cl/form?token_ws=tok", vm.abrirUrl.value)
+        assertEquals(AbrirWebpay(8, "https://webpay.cl/form?token_ws=tok"), vm.abrirUrl.value)
         assertNull(vm.hojaPago.value)
         assertNull(vm.pagando.value)
         vm.urlAbierta()

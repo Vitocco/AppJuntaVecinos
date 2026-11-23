@@ -9,6 +9,7 @@ import com.example.appjuntavecinos.data.remote.RetrofitClient
 import com.example.appjuntavecinos.data.remote.dto.ReservaDto
 import com.example.appjuntavecinos.data.repository.PagoRepository
 import com.example.appjuntavecinos.data.repository.ReservaRepository
+import com.example.appjuntavecinos.util.AbrirWebpay
 import com.example.appjuntavecinos.util.Webpay
 import com.example.appjuntavecinos.util.esFutura
 import com.example.appjuntavecinos.util.ordenCronologico
@@ -57,8 +58,8 @@ class MisReservasViewModel @JvmOverloads constructor(
     private val _hojaPago = MutableStateFlow<ReservaDto?>(null)
     val hojaPago: StateFlow<ReservaDto?> = _hojaPago.asStateFlow()
 
-    private val _abrirUrl = MutableStateFlow<String?>(null)
-    val abrirUrl: StateFlow<String?> = _abrirUrl.asStateFlow()
+    private val _abrirUrl = MutableStateFlow<AbrirWebpay?>(null)
+    val abrirUrl: StateFlow<AbrirWebpay?> = _abrirUrl.asStateFlow()
 
     private val _mensaje = MutableStateFlow<String?>(null)
     val mensaje: StateFlow<String?> = _mensaje.asStateFlow()
@@ -109,7 +110,7 @@ class MisReservasViewModel @JvmOverloads constructor(
             when (val r = pagos.iniciarWebpay(reserva.id)) {
                 is Resultado.Exito -> {
                     _hojaPago.value = null
-                    _abrirUrl.value = Webpay.urlFormulario(r.datos)
+                    _abrirUrl.value = AbrirWebpay(reserva.id, Webpay.urlFormulario(r.datos))
                 }
                 is Resultado.Error -> _mensaje.value = r.mensaje
             }
