@@ -1,226 +1,157 @@
 # Junta Zaror
 
-Aplicación móvil Android para la **Junta de Vecinos Población Zaror**. Permite que los vecinos se registren, soliciten la reserva de la sede y consulten la información financiera, y que la directiva (socios) registre los movimientos de dinero con su comprobante.
+App Android de la **Junta de Vecinos Población Zaror** para reservar las sedes comunitarias y dar
+transparencia financiera a los vecinos, con un backend de microservicios en Spring Boot.
 
-Proyecto semestral del ramo **DSY1105 – Desarrollo de Aplicaciones Móviles**, sección **010D** (DUOC UC). Profesor: Carlos Abarzúa.
+## Usuarios de prueba
 
-**Integrantes:** Victor Cortez · Catalina Correa
+Contraseña de todos: **`1234`**
 
----
+| Correo | Rol |
+|--------|-----|
+| `camila@zaror.cl` | Vecina |
+| `luis@zaror.cl` | Vecino |
+| `directiva@zaror.cl` | Directiva |
+| `tesorero@zaror.cl` | Tesorero |
 
-## 1. Tecnologías
+**Tarjeta de prueba de Webpay** (ambiente de integración de Transbank, sin cobros reales):
 
-| Tecnología | Para qué se usa |
-|---|---|
-| Kotlin | Lenguaje de toda la app |
-| Jetpack Compose + Material 3 | Interfaz de usuario (pantallas como funciones `@Composable`) |
-| MVVM | Separación entre pantalla, lógica y datos |
-| StateFlow | Estado de cada pantalla, que se redibuja al cambiar |
-| Room (KSP) | Base de datos local SQLite |
-| Navigation Compose | Navegación entre pantallas |
-| WorkManager | Notificación local con la app cerrada |
-| Cámara (`TakePicture`) + FileProvider | Foto del comprobante |
+| Dato | Valor |
+|------|-------|
+| Tarjeta VISA | `4051 8856 0044 6623` |
+| CVV | `123` |
+| Vencimiento | cualquier fecha futura |
+| RUT (banco) | `11.111.111-1` |
+| Clave | `123` |
 
-Configuración: `minSdk 24`, Android Studio con Gradle Kotlin DSL.
+## Integrantes
 
----
+Victor Cortez y Catalina Correa · DSY1105 · grupo 10
 
-## 2. Funcionalidades
+## Funcionalidades
 
-### Vecino
-- **Registro** con validación de todos los campos y correo único.
-- **Login** con contraseña protegida (hash SHA-256).
-- **Inicio** con resumen y acceso a las demás secciones.
-- **Solicitar reserva** de la sede: fecha, hora de inicio y término, asistentes. Valida que no choque con otra reserva.
-- **Notificación**: al enviar la solicitud, 10 segundos después llega un aviso aunque la app esté cerrada.
-- **Mis pagos** (en desarrollo).
+**Vecino**
+- Registro e inicio de sesión
+- Inicio con saldo de la junta y próximos feriados (API Nager.Date)
+- Solicitar arriendo de una sede (fecha, horario, motivo y asistentes)
+- Ver sus reservas, cancelarlas y pagarlas con Webpay o ver los datos de transferencia
+- Ver las finanzas del mes y los informes de rendición publicados
+- Editar su perfil
 
-### Socio (directiva)
-- Login con rol `SOCIO`, que lleva a su propio panel.
-- **Registrar movimiento** (ingreso o gasto) con categoría, monto y **foto del comprobante** tomada con la cámara.
-- **Historial financiero**: totales del mes, gastos por categoría, informes y rendiciones.
+**Directiva**
+- Aprobar o rechazar solicitudes de arriendo con una observación
+- Calendario de ocupación por sede
+- Ver las finanzas y los informes
 
----
+**Tesorero**
+- Registrar ingresos y gastos con foto de la boleta (cámara o galería)
+- Editar, anular y ver el comprobante de los movimientos
+- Registrar pagos manuales de arriendos (transferencia o efectivo) y ver todos los pagos
+- Crear informes de rendición (borrador o publicado)
 
-## 3. Arquitectura
-
-Se usa **MVVM por capas**. Cada capa tiene una sola responsabilidad:
-
-```
-Screen  →  ViewModel  →  Repository  →  DAO  →  Room (base de datos)
-(muestra)  (estado y      (intermediario)  (operaciones     (donde viven
-           lógica)                          sobre la base)   los datos)
-```
-
-| Capa | Qué hace | Ejemplo |
-|---|---|---|
-| **Screen** | Dibuja la interfaz y avisa los clics. No tiene lógica. | `RegistroScreen` |
-| **ViewModel** | Guarda el estado, valida y decide. Sobrevive a la rotación. | `RegistroViewModel` |
-| **Repository** | Intermediario entre el ViewModel y la base. | `UsuarioRepository` |
-| **DAO** | Interface con las operaciones (insertar, consultar). Room genera la implementación. | `UsuarioDao` |
-| **Model** | Define los datos: tablas (`@Entity`) y formularios. | `Usuario`, `RegistroModel` |
-
-### Estado con StateFlow
-
-Cada ViewModel tiene "una caja con dos accesos":
-
-```kotlin
-private val _formulario = MutableStateFlow(RegistroModel())  // el ViewModel escribe
-val formulario = _formulario.asStateFlow()                   // la Screen solo lee
-```
-
-La Screen observa con `collectAsState()` y se redibuja cada vez que el valor cambia. Como la caja vive en el ViewModel, **lo escrito no se pierde al girar el celular**.
-
-Cada formulario usa dos cajas: `formulario` (lo que el usuario escribe) y `errores` (mensaje por campo; `null` significa que no hay error).
-
----
-
-## 4. Estructura del proyecto
+## Arquitectura
 
 ```
-com.example.appjuntavecinos
-├── MainActivity.kt            Única Activity: aplica el tema y muestra AppNavigation
-├── data
-│   ├── local                  Persistencia en el dispositivo
-│   │   ├── AppDatabase.kt     Crea la base de datos Room (junta_database)
-│   │   ├── UsuarioDao.kt
-│   │   ├── ReservaDao.kt
-│   │   └── FinanzasDao.kt     Movimientos e informes
-│   ├── model
-│   │   ├── Usuario, Reserva, Movimiento, Informe        → tablas (@Entity)
-│   │   ├── LoginModel, RegistroModel, ReservaForm,
-│   │   │   MovimientoForm                                → formularios (en memoria)
-│   │   └── GastoCategoria, ResumenMes                    → resultados para mostrar
-│   └── repository             UsuarioRepository, ReservaRepository, FinanzasRepository
-├── navigation
-│   ├── AppNavigation.kt       NavHost: qué pantalla se muestra en cada ruta
-│   └── Rutas.kt               Nombres de las rutas en un solo lugar
-├── ui
-│   ├── components             BottomBar, BottomBarSocio, CampoHora, Orientation
-│   ├── screens                Login, Registro, Inicio, SolicitarReserva, MisPagos,
-│   │                          SocioHome, RegistrarMovimiento, HistorialFinanciero
-│   ├── theme                  Color, Type, Theme
-│   └── viewmodel              Login, Registro, Reserva, Movimiento, Historial
-└── util
-    ├── Seguridad.kt           sha256()
-    ├── AvisoWorker.kt         Notificación con WorkManager
-    ├── CamaraUriFactory.kt    Crea el archivo y el Uri para la foto
-    └── Fechas.kt              Formato de fechas, horas y montos
+                         ┌───────────────────────────────┐
+                         │  Gateway :8080  (valida JWT)  │──── Eureka :8761
+App Android ─(Retrofit)─►│                               │
+                         └──┬─────────┬─────────┬─────────┘
+                            ▼         ▼         ▼         ▼
+                         ms-auth  ms-usuario ms-reserva ms-finanza ──► Webpay (Transbank)
+                            └─────────┴────┬────┴─────────┘
+                                           ▼
+                                      MySQL 8
+
+App Android ─(Retrofit separado, sin token)─► API externa Nager.Date
 ```
 
----
+## Endpoints utilizados
 
-## 5. Base de datos (Room)
+### Microservicios (vía gateway `http://10.0.2.2:8080/`)
 
-Archivo `junta_database`, versión 5. Se crea en `AppDatabase.kt`.
+Roles: **Todos** = cualquier usuario con sesión · **D** = Directiva · **T** = Tesorero.
 
-| Tabla | Entidad | Contenido |
-|---|---|---|
-| `usuarios` | `Usuario` | Datos del vecino o socio, `passwordHash` y `rol` |
-| `reservas` | `Reserva` | Solicitudes de la sede |
-| `movimientos` | `Movimiento` | Ingresos y gastos, con la ruta del comprobante |
-| `informes` | `Informe` | Informes y rendiciones publicadas |
+| Método | Ruta | Rol | Para qué |
+|--------|------|-----|----------|
+| POST | `/api/auth/login` | Público | Iniciar sesión (devuelve el token JWT) |
+| POST | `/api/auth/register` | Público | Registrarse como vecino |
+| GET | `/api/usuarios/me` | Todos | Ver mi perfil |
+| PUT | `/api/usuarios/me` | Todos | Editar mi perfil |
+| GET | `/api/sedes` | Todos | Listar sedes con fotos y precio |
+| GET | `/api/sedes/{id}/disponibilidad?anio=&mes=` | Todos | Horarios ocupados de una sede |
+| POST | `/api/reservas` | Todos | Solicitar un arriendo |
+| GET | `/api/reservas/mias` | Todos | Mis reservas |
+| GET | `/api/reservas?estado=` | D, T | Todas las reservas (filtro por estado) |
+| PUT | `/api/reservas/{id}/estado` | D | Aprobar o rechazar una reserva |
+| DELETE | `/api/reservas/{id}` | Dueño | Cancelar mi reserva |
+| GET | `/api/finanzas/resumen?anio=&mes=` | Todos | Saldo, ingresos y gastos del mes |
+| GET | `/api/categorias` | T | Categorías de ingresos y gastos |
+| GET | `/api/movimientos?anio=&mes=` | D, T | Movimientos del mes |
+| POST | `/api/movimientos` | T | Registrar movimiento (multipart con foto opcional) |
+| PUT | `/api/movimientos/{id}` | T | Editar movimiento |
+| DELETE | `/api/movimientos/{id}` | T | Anular movimiento |
+| GET | `/api/pagos` | D, T | Listar pagos |
+| POST | `/api/pagos` | T | Registrar pago manual (multipart con comprobante) |
+| POST | `/api/pagos/webpay/iniciar` | Vecino dueño | Iniciar el pago con Webpay |
+| GET | `/api/informes` | Todos | Listar informes (el vecino solo ve los publicados) |
+| GET | `/api/informes/{id}` | Todos | Detalle de un informe con totales |
+| POST | `/api/informes` | T | Crear informe |
 
-Consultas principales:
+Las imágenes (`/api/sedes/fotos/{archivo}` y `/api/movimientos/{id}/comprobante`) se cargan con Coil.
 
-- `UsuarioDao.buscarPorEmail(email)`: login y validación de correo único.
-- `ReservaDao.buscarChoques(fecha, inicio, termino)`: evita reservas que se superponen.
-- `FinanzasDao.totalDelMes`, `gastosPorCategoria`, `netoHasta`, `informes`: datos del historial.
+### API externa
 
-Todas las operaciones son `suspend`: acceden a disco y no deben bloquear la pantalla.
+| Método | URL | Para qué |
+|--------|-----|----------|
+| GET | `https://date.nager.at/api/v3/publicholidays/{anio}/CL` | Feriados de Chile del año |
 
-> Si se cambia una `@Entity`, hay que subir `version` en `@Database`. Con `fallbackToDestructiveMigration` la base se recrea.
+## Pasos para ejecutar
 
-Para ver los datos: **Android Studio → App Inspection → Database Inspector**.
+**Backend** (requiere Docker Desktop)
 
----
-
-## 6. Seguridad y validaciones
-
-- **Contraseñas:** nunca se guardan en texto. `Seguridad.sha256()` genera el hash y es lo único que queda en la base. En el login se calcula el hash de lo escrito y se compara.
-- **Validaciones en el ViewModel** (no en la Screen): campos obligatorios, formato de correo, contraseña, montos y horas. El resultado se publica en el StateFlow `errores` y la Screen muestra el mensaje bajo cada campo.
-- **Correo único:** `RegistroViewModel.guardar()` consulta `buscarPorEmail` y, si ya existe, muestra "Este correo ya está registrado".
-
----
-
-## 7. Recursos nativos
-
-### Cámara (comprobante del movimiento)
-1. Se pide el permiso `CAMERA`.
-2. `CamaraUriFactory` crea un archivo vacío en `filesDir/comprobantes/comprobante_xxx.jpg` y obtiene su `Uri` con **FileProvider** (`file_paths.xml` y `<provider>` en el Manifest).
-3. El contrato `TakePicture` abre la cámara y ella escribe la foto en ese `Uri`.
-4. El `Uri` se guarda en `MovimientoForm.comprobante`. Al guardar, Room almacena **solo la ruta como texto**; la imagen queda como archivo.
-
-### Notificación local (con la app cerrada)
-- **WorkManager** con `OneTimeWorkRequest` y `setInitialDelay(10 s)`. El trabajo lo ejecuta `AvisoWorker` (un `CoroutineWorker`).
-- El trabajador crea el canal de notificación y muestra el aviso solo si el usuario dio el permiso `POST_NOTIFICATIONS` (Android 13+), que se solicita en `InicioScreen`.
-- Se dispara al enviar una solicitud de reserva: `AppNavigation` → `programarAviso(...)`.
-- Es una notificación **local**: no usa servidor ni internet.
-
----
-
-## 8. Rotación de pantalla
-
-Dos partes complementarias:
-
-1. **Se conservan los datos:** el estado vive en el ViewModel, que sobrevive al giro.
-2. **Se adapta el diseño:** `ui/components/Orientation.kt` lee `LocalConfiguration` y, en horizontal, usa dos columnas (`DosColumnas`).
-
----
-
-## 9. Navegación
-
-`AppNavigation.kt` define un `NavHost` con `startDestination = Rutas.LOGIN`.
-
-```
-Login ──(rol VECINO)──► Inicio ──► Solicitar reserva ──► (notificación)
-  │                        └─────► Mis pagos / Historial
-  ├──(rol SOCIO)───────► Panel socio ──► Registrar movimiento (cámara)
-  └──► Registro
+```bash
+cd backend
+cp .env.example .env          # completar los valores (ver backend/README.md)
+docker compose up -d --build
 ```
 
-La barra inferior (`BottomBar`) está definida en `ui/components` y cada Screen la coloca en su propio `Scaffold`. `AppNavigation` solo recibe `onSeleccionar` y navega.
+> Si el puerto **3306** está ocupado (por ejemplo, el MySQL de XAMPP), detenerlo antes de
+> `docker compose up`: el contenedor de MySQL publica ese puerto en el PC.
 
----
+Esperar **1 minuto** y revisar <http://localhost:8761>: deben aparecer MS-AUTH, MS-USUARIO,
+MS-RESERVA, MS-FINANZA y MS-GATEWAY.
 
-## 10. ¿Dónde está cada cosa?
+**App**
 
-| Pregunta | Archivo |
-|---|---|
-| ¿Dónde se crea la base de datos? | `data/local/AppDatabase.kt` |
-| ¿Dónde se calcula el SHA-256? | `util/Seguridad.kt` |
-| ¿Dónde se valida el correo único? | `ui/viewmodel/RegistroViewModel.kt` → `guardar()` |
-| ¿Dónde se crea el socio de prueba? | `data/repository/UsuarioRepository.kt` → `crearSocioDePrueba()` |
-| ¿Dónde se decide a qué pantalla va el login? | `navigation/AppNavigation.kt` → `onLoginClick` |
-| ¿Dónde se programa la notificación? | `util/AvisoWorker.kt` → `programarAviso()` |
-| ¿Dónde se pide el permiso de notificaciones? | `ui/screens/InicioScreen.kt` |
-| ¿Dónde se toma y guarda la foto? | `ui/screens/RegistrarMovimientoScreen.kt` y `util/CamaraUriFactory.kt` |
-| ¿Dónde se adapta el diseño al girar? | `ui/components/Orientation.kt` |
-| ¿Dónde está la barra inferior? | `ui/components/BottomBar.kt` y `BottomBarSocio.kt` |
-| ¿Dónde se aplica el tema? | `MainActivity.kt` y `ui/theme/` |
+1. Abrir la carpeta raíz del repositorio en Android Studio.
+2. Hacer **Gradle Sync**.
+3. **Run** en el emulador.
 
----
+> El backend usa el **mirror de Google para Maven Central** (la red de DUOC bloquea Maven Central)
+> en Maven/Docker (`settings.xml` de cada microservicio). La app apunta a `http://10.0.2.2:8080/`, que es el PC visto
+> desde el **emulador** de Android.
 
-## 11. Cómo ejecutar
+## Pruebas unitarias
 
-1. Abrir la carpeta del proyecto en **Android Studio**.
-2. Esperar a que Gradle sincronice.
-3. Ejecutar en un emulador o en un celular (Android 7.0 o superior).
-4. Aceptar los permisos de cámara y notificaciones cuando la app los pida.
+JUnit + MockK · **70 pruebas** · cobertura **89 %** (Kover) en ViewModel y Repository.
 
-### Usuarios de prueba
+Desde la raíz del repositorio:
 
-| Rol | Correo | Contraseña |
-|---|---|---|
-| Socio | `socio@zaror.cl` | `1234` |
-| Vecino | Se crea desde la pantalla **Registro** | La que se elija |
+```bash
+./gradlew testDebugUnitTest koverHtmlReportDebug
+```
 
-El socio se crea solo la primera vez que se abre el Login.
+Reporte: `app/build/reports/kover/htmlDebug/index.html`
 
----
+![Cobertura](docs/cobertura.png)
 
-## 12. Limitaciones conocidas
+## APK firmado
 
-- **Mis pagos** es una pantalla en desarrollo (muestra un texto provisorio).
-- En el panel del socio, las pestañas **Gestión** y **Reportes** aún no tienen pantalla asociada.
-- Los datos de informes del historial y los límites de la reserva (por ejemplo, 60 asistentes) son de ejemplo.
+- APK: [`apk/JuntaZaror-release.apk`](apk/JuntaZaror-release.apk)
+- Llave: [`keystore/junta-zaror.jks`](keystore/junta-zaror.jks)
+- Firma configurada en `app/build.gradle.kts` (`signingConfigs`).
+- Las contraseñas **no se suben**: van en `keystore.properties` (en la raíz), que está en `.gitignore`.
+
+![APK](docs/apk.png)
+
+![Keystore](docs/jks.png)

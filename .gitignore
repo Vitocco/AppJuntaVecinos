@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Firma release: las contraseñas no se suben
+keystore.properties
