@@ -66,4 +66,7 @@ public class Reserva {
 
     @Column(name = "fecha_actualizacion", nullable = false)
     private LocalDateTime fechaActualizacion;
+
+    @Column(name = "telefono")
+    private String telefono;
 }

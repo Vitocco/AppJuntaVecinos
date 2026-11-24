@@ -3,6 +3,46 @@
 App Android de la **Junta de Vecinos Población Zaror** para reservar las sedes comunitarias y dar
 transparencia financiera a los vecinos, con un backend de microservicios en Spring Boot.
 
+## Pasos para ejecutar
+
+**Backend** (requiere Docker Desktop)
+
+```bash
+cd backend
+cp .env.example .env          # completar los valores (ver backend/README.md)
+docker compose up -d --build
+```
+
+> Si el puerto **3306** está ocupado (por ejemplo, el MySQL de XAMPP), detenerlo antes de
+> `docker compose up`: el contenedor de MySQL publica ese puerto en el PC.
+
+Esperar **1 minuto** y revisar <http://localhost:8761>: deben aparecer MS-AUTH, MS-USUARIO,
+MS-RESERVA, MS-FINANZA y MS-GATEWAY.
+
+**App**
+
+1. Abrir la carpeta raíz del repositorio en Android Studio.
+2. Hacer **Gradle Sync**.
+3. **Run** en el emulador.
+
+> El backend usa el **mirror de Google para Maven Central** (la red de DUOC bloquea Maven Central)
+> en Maven/Docker (`settings.xml` de cada microservicio). La app apunta a `http://10.0.2.2:8080/`, que es el PC visto
+> desde el **emulador** de Android.
+
+## Pruebas unitarias
+
+JUnit + MockK · **73 pruebas** · cobertura **89,2 %** de líneas (Kover) en ViewModel y Repository.
+
+Desde la raíz del repositorio:
+
+```bash
+./gradlew testDebugUnitTest koverHtmlReportDebug
+```
+
+Reporte: `app/build/reports/kover/htmlDebug/index.html`
+
+![Cobertura](docs/cobertura.png)
+
 ## Usuarios de prueba
 
 Contraseña de todos: **`1234`**
@@ -104,46 +144,6 @@ Las imágenes (`/api/sedes/fotos/{archivo}` y `/api/movimientos/{id}/comprobante
 | Método | URL | Para qué |
 |--------|-----|----------|
 | GET | `https://date.nager.at/api/v3/publicholidays/{anio}/CL` | Feriados de Chile del año |
-
-## Pasos para ejecutar
-
-**Backend** (requiere Docker Desktop)
-
-```bash
-cd backend
-cp .env.example .env          # completar los valores (ver backend/README.md)
-docker compose up -d --build
-```
-
-> Si el puerto **3306** está ocupado (por ejemplo, el MySQL de XAMPP), detenerlo antes de
-> `docker compose up`: el contenedor de MySQL publica ese puerto en el PC.
-
-Esperar **1 minuto** y revisar <http://localhost:8761>: deben aparecer MS-AUTH, MS-USUARIO,
-MS-RESERVA, MS-FINANZA y MS-GATEWAY.
-
-**App**
-
-1. Abrir la carpeta raíz del repositorio en Android Studio.
-2. Hacer **Gradle Sync**.
-3. **Run** en el emulador.
-
-> El backend usa el **mirror de Google para Maven Central** (la red de DUOC bloquea Maven Central)
-> en Maven/Docker (`settings.xml` de cada microservicio). La app apunta a `http://10.0.2.2:8080/`, que es el PC visto
-> desde el **emulador** de Android.
-
-## Pruebas unitarias
-
-JUnit + MockK · **73 pruebas** · cobertura **89,2 %** de líneas (Kover) en ViewModel y Repository.
-
-Desde la raíz del repositorio:
-
-```bash
-./gradlew testDebugUnitTest koverHtmlReportDebug
-```
-
-Reporte: `app/build/reports/kover/htmlDebug/index.html`
-
-![Cobertura](docs/cobertura.png)
 
 ## APK firmado
 

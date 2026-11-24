@@ -77,6 +77,7 @@ public class ReservaService {
         r.setPagada(false);
         r.setFechaCreacion(LocalDateTime.now());
         r.setFechaActualizacion(LocalDateTime.now());
+        r.setTelefono(req.telefono());
         r = reservaRepository.save(r);
 
         registrarHistorial(r, null, usuario.id(), null);
