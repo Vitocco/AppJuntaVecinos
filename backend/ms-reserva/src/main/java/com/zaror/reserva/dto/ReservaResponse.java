@@ -23,14 +23,13 @@ public record ReservaResponse(
         EstadoReserva estado,
         boolean pagada,
         int precio,
-        String observacion,
-        String telefono) {
+        String observacion) {
 
     // sedeFoto = primera foto de la sede (portada); precio = precio de la sede
     public static ReservaResponse de(Reserva r, Sede s) {
         String foto = s.getFotos().isEmpty() ? null : s.getFotos().get(0);
         return new ReservaResponse(r.getId(), s.getId(), s.getNombre(), foto, r.getUsuarioId(),
                 r.getUsuarioNombre(), r.getFecha(), r.getHoraInicio(), r.getHoraFin(), r.getMotivo(),
-                r.getAsistentes(), r.getEstado(), r.isPagada(), s.getPrecio(), r.getObservacion(), r.getTelefono());
+                r.getAsistentes(), r.getEstado(), r.isPagada(), s.getPrecio(), r.getObservacion());
     }
 }

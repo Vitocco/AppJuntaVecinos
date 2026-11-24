@@ -35,6 +35,7 @@ public class ReservaController {
         this.service = service;
     }
 
+    // Cualquier usuario autenticado; el dueño sale del token
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ReservaResponse crear(@Valid @RequestBody CrearReservaRequest req,
